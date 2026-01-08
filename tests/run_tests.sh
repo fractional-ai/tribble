@@ -120,6 +120,7 @@ REQUIRED_FILES=(
     "scripts/spawn-iterm2.sh"
     "scripts/spawn-terminal-app.sh"
     "scripts/spawn-tmux.sh"
+    "scripts/validate-installation.sh"
     "commands/run.md"
     "lib/dependency-analyzer.md"
     "README.md"
