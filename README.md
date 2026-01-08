@@ -10,14 +10,13 @@ Run multiple tasks in parallel across terminal tabs. Claude analyzes dependencie
 
 **Quick Install:**
 ```bash
-# One-line install (update YOUR-ORG with your GitHub organization)
-curl -fsSL https://raw.githubusercontent.com/YOUR-ORG/pasta-maker/main/install.sh | bash -s git@github.com:YOUR-ORG/pasta-maker.git
+curl -fsSL https://raw.githubusercontent.com/fractional-ai/pasta-maker/main/install.sh | bash -s git@github.com:fractional-ai/pasta-maker.git
 ```
 
 **Manual Install:**
 ```bash
 # Clone to Claude plugins directory
-git clone git@github.com:YOUR-ORG/pasta-maker.git ~/.claude/plugins/pasta-maker
+git clone git@github.com:fractional-ai/pasta-maker.git ~/.claude/plugins/pasta-maker
 
 # Make scripts executable
 chmod +x ~/.claude/plugins/pasta-maker/scripts/*.sh
@@ -30,7 +29,7 @@ claude --plugin-dir ~/.claude/plugins/pasta-maker
 
 1. Clone this repository:
 ```bash
-git clone <repo-url>
+git clone https://github.com/fractional-ai/pasta-maker.git
 cd pasta-maker
 ```
 

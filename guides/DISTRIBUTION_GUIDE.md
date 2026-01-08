@@ -134,7 +134,7 @@ git commit -m "Add pasta-maker Claude Code plugin"
 2. **Push to GitHub:**
    ```bash
    # Add remote
-   git remote add origin git@github.com:YOUR-ORG/pasta-maker.git
+   git remote add origin git@github.com:fractional-ai/pasta-maker.git
 
    # Push to main branch
    git branch -M main
@@ -182,7 +182,7 @@ fi
 
 # Clone repository
 echo "📦 Cloning repository..."
-git clone git@github.com:YOUR-ORG/pasta-maker.git "${INSTALL_DIR}"
+git clone git@github.com:fractional-ai/pasta-maker.git "${INSTALL_DIR}"
 
 # Make scripts executable
 echo "🔧 Setting permissions..."
@@ -235,14 +235,14 @@ Add a team installation section:
 
 ```bash
 # One-line install
-curl -fsSL https://raw.githubusercontent.com/YOUR-ORG/pasta-maker/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/fractional-ai/pasta-maker/main/install.sh | bash
 ```
 
 ### Manual Install
 
 ```bash
 # Clone to Claude plugins directory
-git clone git@github.com:YOUR-ORG/pasta-maker.git ~/.claude/plugins/pasta-maker
+git clone git@github.com:fractional-ai/pasta-maker.git ~/.claude/plugins/pasta-maker
 
 # Make scripts executable
 chmod +x ~/.claude/plugins/pasta-maker/scripts/*.sh
@@ -280,7 +280,7 @@ git pull
 ```bash
 # On a test machine or different directory
 # 1. Clone repository
-git clone git@github.com:YOUR-ORG/pasta-maker.git ~/.claude/plugins/pasta-maker
+git clone git@github.com:fractional-ai/pasta-maker.git ~/.claude/plugins/pasta-maker
 
 # 2. Set permissions
 chmod +x ~/.claude/plugins/pasta-maker/scripts/*.sh
@@ -307,7 +307,7 @@ Create a wrapper script that handles installation and updates:
 # pasta-maker-launcher.sh
 
 PLUGIN_DIR="${HOME}/.claude/plugins/pasta-maker"
-REPO_URL="git@github.com:YOUR-ORG/pasta-maker.git"
+REPO_URL="git@github.com:fractional-ai/pasta-maker.git"
 
 # Install if not present
 if [ ! -d "${PLUGIN_DIR}" ]; then
@@ -387,7 +387,7 @@ claude --plugin-dir tools/claude-plugins/pasta-maker
 
 ```json
 {
-  "name": "@yourorg/claude-plugin-pasta-maker",
+  "name": "@fractional-ai/claude-plugin-pasta-maker",
   "version": "1.0.0",
   "description": "Task parallelization plugin for Claude Code",
   "bin": {
@@ -405,7 +405,7 @@ claude --plugin-dir tools/claude-plugins/pasta-maker
 **Installation:**
 ```bash
 # Team members install via npm
-npm install -g @yourorg/claude-plugin-pasta-maker
+npm install -g @fractional-ai/claude-plugin-pasta-maker
 
 # Auto-installs to ~/.claude/plugins/
 ```
@@ -554,7 +554,7 @@ Create `QUICK_START.md`:
 ### Step 1: Install the Plugin
 
 ```bash
-git clone git@github.com:YOUR-ORG/pasta-maker.git ~/.claude/plugins/pasta-maker
+git clone git@github.com:fractional-ai/pasta-maker.git ~/.claude/plugins/pasta-maker
 chmod +x ~/.claude/plugins/pasta-maker/scripts/*.sh
 ```
 
@@ -591,7 +591,7 @@ Result: Both tests run in parallel, saving time!
 
 - Read the full README: `~/.claude/plugins/pasta-maker/README.md`
 - Ask in #claude-tools Slack channel
-- Report bugs: [GitHub Issues](https://github.com/YOUR-ORG/pasta-maker/issues)
+- Report bugs: [GitHub Issues](https://github.com/fractional-ai/pasta-maker/issues)
 
 ## Updating
 
@@ -721,7 +721,7 @@ chmod +x ~/.claude/plugins/pasta-maker/scripts/*.sh
 
 1. **Use HTTPS instead:**
    ```bash
-   git clone https://github.com/YOUR-ORG/pasta-maker.git ~/.claude/plugins/pasta-maker
+   git clone https://github.com/fractional-ai/pasta-maker.git ~/.claude/plugins/pasta-maker
    ```
 
 2. **Or configure SSH:**
@@ -863,7 +863,7 @@ The plugin's scripts execute shell commands. Ensure:
 
 ```bash
 # 1. Clone repository
-git clone git@github.com:YOUR-ORG/pasta-maker.git ~/.claude/plugins/pasta-maker
+git clone git@github.com:fractional-ai/pasta-maker.git ~/.claude/plugins/pasta-maker
 
 # 2. Set permissions
 chmod +x ~/.claude/plugins/pasta-maker/scripts/*.sh
@@ -891,7 +891,7 @@ rm -rf ~/.claude/plugins/pasta-maker
 ### C. Support Resources
 
 **Internal Resources:**
-- Plugin repository: `git@github.com:YOUR-ORG/pasta-maker.git`
+- Plugin repository: `git@github.com:fractional-ai/pasta-maker.git`
 - Documentation: Repository README.md
 - Support channel: #claude-tools Slack
 - Issue tracker: GitHub Issues

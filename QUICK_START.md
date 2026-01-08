@@ -16,12 +16,12 @@ Choose one method:
 
 **Option A: One-line install**
 ```bash
-curl -fsSL https://raw.githubusercontent.com/YOUR-ORG/pasta-maker/main/install.sh | bash -s git@github.com:YOUR-ORG/pasta-maker.git
+curl -fsSL https://raw.githubusercontent.com/fractional-ai/pasta-maker/main/install.sh | bash -s git@github.com:fractional-ai/pasta-maker.git
 ```
 
 **Option B: Manual install**
 ```bash
-git clone git@github.com:YOUR-ORG/pasta-maker.git ~/.claude/plugins/pasta-maker
+git clone git@github.com:fractional-ai/pasta-maker.git ~/.claude/plugins/pasta-maker
 chmod +x ~/.claude/plugins/pasta-maker/scripts/*.sh
 ```
 
@@ -176,7 +176,7 @@ claude --plugin-dir ~/.claude/plugins/pasta-maker
 
 Try HTTPS instead:
 ```bash
-git clone https://github.com/YOUR-ORG/pasta-maker.git ~/.claude/plugins/pasta-maker
+git clone https://github.com/fractional-ai/pasta-maker.git ~/.claude/plugins/pasta-maker
 ```
 
 ## Getting Help

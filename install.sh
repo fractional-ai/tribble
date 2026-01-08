@@ -4,8 +4,8 @@
 # Usage: ./install.sh [REPO_URL]
 #
 # Example:
-#   ./install.sh git@github.com:yourorg/pasta-maker.git
-#   ./install.sh https://github.com/yourorg/pasta-maker.git
+#   ./install.sh git@github.com:fractional-ai/pasta-maker.git
+#   ./install.sh https://github.com/fractional-ai/pasta-maker.git
 
 set -e
 
@@ -14,7 +14,7 @@ CLAUDE_PLUGINS_DIR="${HOME}/.claude/plugins"
 INSTALL_DIR="${CLAUDE_PLUGINS_DIR}/${PLUGIN_NAME}"
 
 # Repository URL - can be passed as argument or use default
-REPO_URL="${1:-git@github.com:YOUR-ORG/pasta-maker.git}"
+REPO_URL="${1:-git@github.com:fractional-ai/pasta-maker.git}"
 
 echo "🍝 Installing Pasta Maker Plugin..."
 echo ""
@@ -48,7 +48,7 @@ if ! git clone "${REPO_URL}" "${INSTALL_DIR}"; then
     echo "❌ Failed to clone repository."
     echo ""
     echo "If you see an authentication error, try:"
-    echo "  1. Using HTTPS: ./install.sh https://github.com/YOUR-ORG/pasta-maker.git"
+    echo "  1. Using HTTPS: ./install.sh https://github.com/fractional-ai/pasta-maker.git"
     echo "  2. Setting up SSH keys: https://docs.github.com/en/authentication"
     exit 1
 fi

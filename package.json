@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/YOUR-ORG/pasta-maker.git"
+    "url": "git+https://github.com/fractional-ai/pasta-maker.git"
   },
   "keywords": [
     "claude-code",
@@ -24,9 +24,9 @@
   "author": "Pasta Maker Team",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/YOUR-ORG/pasta-maker/issues"
+    "url": "https://github.com/fractional-ai/pasta-maker/issues"
   },
-  "homepage": "https://github.com/YOUR-ORG/pasta-maker#readme",
+  "homepage": "https://github.com/fractional-ai/pasta-maker#readme",
   "engines": {
     "node": ">=14.0.0"
   },
