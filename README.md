@@ -104,8 +104,13 @@ Claude: ✓ Tab 'Frontend Tests' created
 
 ## Requirements
 
-- macOS (iTerm2 or Terminal.app) or tmux
-- Tabs spawn automatically with AppleScript or tmux commands
+**Supported Terminals:**
+- **macOS:** iTerm2, Terminal.app
+- **Linux:** tmux, GNOME Terminal, Konsole
+- **Windows:** Windows Terminal (via WSL)
+- **Cross-platform:** tmux, Alacritty, Kitty, Hyper, Warp, VS Code
+
+Tabs spawn automatically using terminal-specific commands (AppleScript, tmux, etc.)
 
 ## FAQ
 

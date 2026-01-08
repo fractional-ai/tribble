@@ -34,13 +34,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Windows Terminal support for WSL environments
+- Tab name sanitization helper in common library
+- Improved terminal detection for Windows Terminal
+
+### Fixed
+- Test suite arithmetic expansion bug for better POSIX compatibility
+
 ### Planned Features
 - Save and reuse workflow configurations
 - Web-based dashboard for monitoring tasks
-- Support for additional terminals (Alacritty, WezTerm)
 - Task templates for common workflows
-- Improved error handling and recovery
-- Performance metrics and timing reports
+- Enhanced error handling and recovery
 
 ---
 

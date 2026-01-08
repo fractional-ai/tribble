@@ -139,9 +139,10 @@ Result: Both datasets process in parallel, merge runs when both complete.
 - Claude will show you the plan before executing
 
 **Terminal Support:**
-- macOS: iTerm2 or Terminal.app (with automation permissions)
+- macOS: iTerm2, Terminal.app (with automation permissions)
 - Linux: tmux, GNOME Terminal, Konsole
-- Windows: WSL with tmux
+- Windows: Windows Terminal (via WSL), tmux
+- Cross-platform: Alacritty, Kitty, Hyper, Warp, VS Code
 
 **Resource Management:**
 - Light tasks (tests, lints): up to 10 parallel
