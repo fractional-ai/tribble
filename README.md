@@ -165,12 +165,78 @@ Yes, but each tab will prompt for password separately. Consider using sudo with 
 - Can be revoked in System Preferences if needed
 - Only affects terminal automation, not system access
 
-## Common Issues
+## Troubleshooting
 
-**"Not authorized to send Apple events"**
+### Validation Tool
+
+Run the validation script to diagnose setup issues:
+
+```bash
+./scripts/validate-installation.sh
+```
+
+This checks:
+- Required files exist
+- Scripts are executable
+- Terminal detection works
+- Configuration is valid
+- Terminal-specific requirements
+
+### Common Issues
+
+**"Not authorized to send Apple events" (macOS)**
 
 Fix: System Preferences → Security & Privacy → Privacy → Automation → Enable your terminal
 
 **Tabs don't spawn**
 
-Check: Scripts are executable (`chmod +x scripts/*.sh`)
+Fixes:
+1. Check scripts are executable: `chmod +x ~/.claude/plugins/pasta-maker/scripts/*.sh`
+2. Verify terminal is detected: `./scripts/detect-terminal.sh`
+3. Run validation: `./scripts/validate-installation.sh`
+
+**"Not in a tmux session"**
+
+Fix: Start tmux first, then run Pasta Maker from within the tmux session:
+```bash
+tmux new-session -s pasta-maker
+# Then run /pasta-maker:run in Claude Code
+```
+
+**Terminal not detected or shows "unknown"**
+
+Options:
+1. Use tmux for best compatibility: `brew install tmux` or `apt install tmux`
+2. Check if your terminal is supported (see Requirements section)
+3. File an issue with your terminal details
+
+**Permission denied errors**
+
+Fix:
+```bash
+chmod +x ~/.claude/plugins/pasta-maker/scripts/*.sh
+```
+
+**Plugin not found**
+
+Verify installation:
+```bash
+ls -la ~/.claude/plugins/pasta-maker
+claude --plugin-dir ~/.claude/plugins/pasta-maker
+```
+
+**Commands fail in spawned tabs**
+
+Check:
+1. Directory exists and is accessible
+2. Command works when run manually
+3. Environment variables are set correctly
+4. Command doesn't require interactive input
+
+### Getting Help
+
+If issues persist:
+1. Run `./scripts/validate-installation.sh` and share the output
+2. Include your terminal type and OS version
+3. Share any error messages
+4. Report issues at: https://github.com/fractional-ai/pasta-maker/issues

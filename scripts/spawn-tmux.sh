@@ -31,8 +31,17 @@ validate_directory "$DIRECTORY" || exit $?
 
 # Verify we're in a tmux session
 if [ -z "$TMUX" ]; then
-    echo "Error: Not in a tmux session" >&2
-    echo "Please run this from within tmux, or use a different terminal" >&2
+    echo "[ERROR] tmux Spawn: Not in a tmux session" >&2
+    echo "" >&2
+    echo "Pasta Maker requires an active tmux session for spawning." >&2
+    echo "" >&2
+    echo "To start tmux:" >&2
+    echo "  tmux new-session -s pasta-maker" >&2
+    echo "" >&2
+    echo "Or attach to existing:" >&2
+    echo "  tmux attach -t pasta-maker" >&2
+    echo "" >&2
+    echo "Then run Pasta Maker again from within tmux." >&2
     exit 1
 fi
 

@@ -42,7 +42,17 @@ validate_directory() {
     if [ ! -d "$directory" ]; then
         echo "[ERROR] Directory does not exist: '$directory'" >&2
         echo "" >&2
-        echo "Please ensure the directory exists before spawning." >&2
+        echo "The specified directory was not found." >&2
+        echo "" >&2
+        echo "Common causes:" >&2
+        echo "  - Typo in directory path" >&2
+        echo "  - Directory not yet created" >&2
+        echo "  - Incorrect relative vs absolute path" >&2
+        echo "" >&2
+        echo "To fix:" >&2
+        echo "  - Verify path: ls -la \"$(dirname "$directory")\"" >&2
+        echo "  - Create directory: mkdir -p \"$directory\"" >&2
+        echo "  - Use absolute paths (e.g., /Users/name/project)" >&2
         return 2
     fi
 

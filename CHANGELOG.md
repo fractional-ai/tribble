@@ -38,9 +38,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Windows Terminal support for WSL environments
 - Tab name sanitization helper in common library
 - Improved terminal detection for Windows Terminal
+- Installation validation script (`scripts/validate-installation.sh`)
+- Comprehensive troubleshooting section in README
+- Better error messages with actionable fixes in common library
 
 ### Fixed
 - Test suite arithmetic expansion bug for better POSIX compatibility
+
+### Improved
+- Error messages in spawn scripts now include context and suggestions
+- Directory validation provides detailed troubleshooting steps
+- tmux spawn script has clearer error messages with examples
 
 ### Planned Features
 - Save and reuse workflow configurations
