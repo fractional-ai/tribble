@@ -1,0 +1,15 @@
+{
+  "name": "pasta-maker",
+  "version": "1.0.0",
+  "description": "Intelligently parallelize tasks across terminal tabs by analyzing dependencies and spawning separate Claude Code instances",
+  "author": {
+    "name": "Pasta Maker Team"
+  },
+  "keywords": [
+    "parallelization",
+    "productivity",
+    "workflow",
+    "automation",
+    "terminal"
+  ]
+}

@@ -1,0 +1,46 @@
+{
+  "name": "pasta-maker",
+  "version": "1.0.0",
+  "description": "Intelligently parallelize tasks across terminal tabs by analyzing dependencies and spawning separate Claude Code instances",
+  "main": "index.js",
+  "scripts": {
+    "test": "bash tests/run_tests.sh"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/YOUR-ORG/pasta-maker.git"
+  },
+  "keywords": [
+    "claude-code",
+    "plugin",
+    "parallelization",
+    "productivity",
+    "workflow",
+    "automation",
+    "terminal",
+    "task-runner",
+    "multi-terminal"
+  ],
+  "author": "Pasta Maker Team",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/YOUR-ORG/pasta-maker/issues"
+  },
+  "homepage": "https://github.com/YOUR-ORG/pasta-maker#readme",
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "files": [
+    ".claude-plugin/",
+    "commands/",
+    "scripts/",
+    "lib/",
+    "tests/",
+    "guides/",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md",
+    "QUICK_START.md",
+    "CONTRIBUTING.md"
+  ]
+}
