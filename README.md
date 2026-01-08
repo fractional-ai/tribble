@@ -1,4 +1,4 @@
-# Pasta Maker
+# Pasta Maker 🍝
 
 Run multiple tasks in parallel across terminal tabs. Claude analyzes dependencies and spawns tasks automatically.
 
