@@ -22,7 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - DISTRIBUTION_GUIDE for team deployment
   - MARKETING_PLAN for visibility strategies
   - USABILITY_REPORT with optimization findings
-  - QUICK_START guide for new users
+  - Examples.md with use cases
 - Installation script for easy deployment
 - Test suite with automated testing
 

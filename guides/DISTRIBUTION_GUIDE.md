@@ -544,7 +544,7 @@ All notable changes to pasta-maker will be documented in this file.
 
 ### Quick Start Guide for New Team Members
 
-Create `QUICK_START.md`:
+Review `Examples.md` for use cases, or create team-specific quick start:
 
 ```markdown
 # Pasta Maker - Quick Start
@@ -607,7 +607,7 @@ git pull
 
 - [ ] Repository created and team has access
 - [ ] README.md updated with team-specific instructions
-- [ ] QUICK_START.md created
+- [ ] Examples.md reviewed and customized if needed
 - [ ] Installation tested on clean machine
 - [ ] Announcement sent to team
 - [ ] Support channel established (Slack/Teams)
@@ -916,7 +916,7 @@ rm -rf ~/.claude/plugins/pasta-maker
 2. **Distribute (5 minutes per person):**
    - Share repository URL
    - Provide one-line install command
-   - Point to QUICK_START.md
+   - Point to Examples.md
    - Available in support channel
 
 3. **Maintain (ongoing):**
