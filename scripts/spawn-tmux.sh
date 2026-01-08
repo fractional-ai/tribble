@@ -26,15 +26,15 @@ PROMPT="${4:-}"
 # Validate arguments using shared function
 validate_arguments "$WINDOW_NAME" "$COMMAND" || exit $?
 
+# Validate directory using shared function (before tmux check for consistency)
+validate_directory "$DIRECTORY" || exit $?
+
 # Verify we're in a tmux session
 if [ -z "$TMUX" ]; then
     echo "Error: Not in a tmux session" >&2
     echo "Please run this from within tmux, or use a different terminal" >&2
     exit 1
 fi
-
-# Validate directory using shared function
-validate_directory "$DIRECTORY" || exit $?
 
 # Get current tmux session name
 SESSION_NAME=$(tmux display-message -p '#S')

@@ -80,6 +80,12 @@ if [ "$TERM_PROGRAM" = "Apple_Terminal" ]; then
     exit 0
 fi
 
+# Check for Windows Terminal
+if [ -n "$WT_SESSION" ] || [ -n "$WT_PROFILE_ID" ]; then
+    echo "windows-terminal"
+    exit 0
+fi
+
 # Check if running on macOS (for AppleScript compatibility)
 if [ "$(uname)" = "Darwin" ]; then
     # Try to detect via process name as fallback

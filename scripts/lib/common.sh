@@ -119,3 +119,15 @@ print_error_header() {
         echo "$error_msg" >&2
     fi
 }
+
+# Sanitizes tab name for safe use in terminal/AppleScript
+# Arguments:
+#   $1 - original tab name
+# Outputs:
+#   Sanitized tab name safe for use
+sanitize_tab_name() {
+    local name="$1"
+    # Remove quotes, backslashes, newlines
+    # Replace forward slashes with hyphens
+    echo "$name" | tr -d '"\\' | tr '\n' ' ' | tr '/' '-' | sed 's/  */ /g' | sed 's/^ *//;s/ *$//'
+}

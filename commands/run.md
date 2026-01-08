@@ -263,6 +263,7 @@ For each task in Group 1, you must:
    - If terminal is `iterm2`: use `spawn-iterm2.sh`
    - If terminal is `terminal`: use `spawn-terminal-app.sh`
    - If terminal is `tmux`: use `spawn-tmux.sh`
+   - If terminal is `windows-terminal`: use `spawn-windows-terminal.sh`
    - If terminal is `unknown`: skip to manual instructions
 
 2. For each task, construct and run the spawn command with ACTUAL values:
@@ -292,6 +293,11 @@ Use the Bash tool to execute:
 Use the Bash tool to execute:
 
 `"${CLAUDE_PLUGIN_ROOT}/scripts/spawn-tmux.sh" "Frontend Tests" "npm test" "/Users/me/project"`
+
+**Example for Windows Terminal:**
+Use the Bash tool to execute:
+
+`"${CLAUDE_PLUGIN_ROOT}/scripts/spawn-windows-terminal.sh" "Frontend Tests" "npm test" "/Users/me/project"`
 
 **IMPORTANT:** Replace the values with actual task details:
 - First argument: The descriptive tab/window name (sanitized)

@@ -43,6 +43,7 @@ Pasta Maker is a Claude Code plugin that parallelizes tasks across terminal tabs
 - ✅ **Kitty** - Via remote control API (requires config)
 
 ### Windows (WSL)
+- ✅ **Windows Terminal** - Native wt.exe command
 - ✅ **tmux** - Native tmux commands
 - ✅ **Alacritty** - Via `msg create-window`
 - ✅ **Kitty** - Via remote control API (requires config)
