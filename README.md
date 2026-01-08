@@ -18,14 +18,18 @@ curl -fsSL https://raw.githubusercontent.com/fractional-ai/pasta-maker/main/inst
 # Clone to Claude plugins directory
 git clone git@github.com:fractional-ai/pasta-maker.git ~/.claude/plugins/pasta-maker
 
-# Make scripts executable
+# Make scripts executable (if needed)
 chmod +x ~/.claude/plugins/pasta-maker/scripts/*.sh
 
-# Start Claude Code
-claude --plugin-dir ~/.claude/plugins/pasta-maker
+# Restart Claude Code - the plugin auto-loads from ~/.claude/plugins/
+claude
 ```
 
+**Note:** Plugins in `~/.claude/plugins/` are automatically loaded. No `--plugin-dir` flag needed!
+
 ### For Development/Testing
+
+When working on the plugin from a custom location (not `~/.claude/plugins/`):
 
 1. Clone this repository:
 ```bash
@@ -38,10 +42,12 @@ cd pasta-maker
 chmod +x scripts/*.sh
 ```
 
-3. Start Claude Code with plugin:
+3. Start Claude Code with `--plugin-dir` flag:
 ```bash
 claude --plugin-dir /absolute/path/to/pasta-maker
 ```
+
+**Note:** The `--plugin-dir` flag is ONLY needed for development or custom locations. Standard installations to `~/.claude/plugins/` auto-load without it.
 
 ### Verify Installation
 
