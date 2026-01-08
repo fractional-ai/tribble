@@ -6,7 +6,7 @@ Run multiple tasks in parallel across terminal tabs. Claude analyzes dependencie
 
 ## Install
 
-### For Team Members (Recommended)
+### For Users (Recommended)
 
 **Quick Install:**
 ```bash
@@ -120,10 +120,6 @@ Commands run immediately after cd. Include environment setup in the command if n
 ```bash
 source ~/.bashrc && npm test
 ```
-
-**Q: Can I save workflows for repeated use?**
-
-Not yet - planned for v2.0. For now, save command lists in a file and paste when prompted.
 
 **Q: Does this work with sudo commands?**
 
