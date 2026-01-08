@@ -160,17 +160,17 @@ echo ""
 # Test 8: Plugin structure
 echo "Test 8: Plugin Structure"
 echo "------------------------"
-if [ -f "$PARENT_DIR/.claude/plugin.json" ]; then
+if [ -f "$PARENT_DIR/.claude-plugin/plugin.json" ]; then
     pass_test "plugin.json exists"
 
     # Validate JSON structure
-    if python3 -m json.tool "$PARENT_DIR/.claude/plugin.json" > /dev/null 2>&1; then
+    if python3 -m json.tool "$PARENT_DIR/.claude-plugin/plugin.json" > /dev/null 2>&1; then
         pass_test "plugin.json is valid JSON"
     else
         fail_test "plugin.json is invalid JSON" "Check syntax"
     fi
 else
-    fail_test "plugin.json not found" "Expected at $PARENT_DIR/.claude/plugin.json"
+    fail_test "plugin.json not found" "Expected at $PARENT_DIR/.claude-plugin/plugin.json"
 fi
 echo ""
 
