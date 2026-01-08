@@ -6,48 +6,65 @@ Run multiple tasks in parallel across terminal tabs. Claude analyzes dependencie
 
 ## Install
 
-### For Users (Recommended)
+> **Note:** This repository is currently private. The quick install method via curl will be available once the repository becomes public.
 
-**Quick Install:**
-```bash
-curl -fsSL https://raw.githubusercontent.com/fractional-ai/pasta-maker/main/install.sh | bash -s git@github.com:fractional-ai/pasta-maker.git
-```
+### Installation
 
-**Manual Install:**
+**Clone and set up the plugin:**
 ```bash
-# Clone to Claude plugins directory
+# Clone the repository to ~/.claude/plugins/
 git clone git@github.com:fractional-ai/pasta-maker.git ~/.claude/plugins/pasta-maker
 
-# Make scripts executable (if needed)
+# Make scripts executable
 chmod +x ~/.claude/plugins/pasta-maker/scripts/*.sh
-
-# Restart Claude Code - the plugin auto-loads from ~/.claude/plugins/
-claude
 ```
 
-**Note:** Plugins in `~/.claude/plugins/` are automatically loaded. No `--plugin-dir` flag needed!
-
-### For Development/Testing
-
-When working on the plugin from a custom location (not `~/.claude/plugins/`):
-
-1. Clone this repository:
+**To use the plugin, start Claude Code with the `--plugin-dir` flag:**
 ```bash
-git clone https://github.com/fractional-ai/pasta-maker.git
-cd pasta-maker
+claude --plugin-dir ~/.claude/plugins/pasta-maker
 ```
 
-2. Make scripts executable:
+**Note:** The plugin must be at `~/.claude/plugins/pasta-maker` (or symlinked there) because the scripts reference this path at runtime.
+
+### Optional: Shell Alias
+
+To avoid typing `--plugin-dir` every time, add an alias to your shell config:
+
 ```bash
-chmod +x scripts/*.sh
+# For zsh users, add to ~/.zshrc:
+alias claude='claude --plugin-dir ~/.claude/plugins/pasta-maker'
+
+# For bash users, add to ~/.bashrc:
+alias claude='claude --plugin-dir ~/.claude/plugins/pasta-maker'
 ```
 
-3. Start Claude Code with `--plugin-dir` flag:
+After adding the alias, restart your terminal or run `source ~/.zshrc` (or `source ~/.bashrc`).
+
+### For Development
+
+If you're working on the plugin from a different location:
 ```bash
-claude --plugin-dir /absolute/path/to/pasta-maker
+# Clone to your development directory
+git clone git@github.com:fractional-ai/pasta-maker.git ~/path/to/dev/pasta-maker
+
+# Make scripts executable
+chmod +x ~/path/to/dev/pasta-maker/scripts/*.sh
+
+# Create symlink so scripts can be found at runtime
+ln -s ~/path/to/dev/pasta-maker ~/.claude/plugins/pasta-maker
+
+# Start Claude Code with the plugin
+claude --plugin-dir ~/path/to/dev/pasta-maker
 ```
 
-**Note:** The `--plugin-dir` flag is ONLY needed for development or custom locations. Standard installations to `~/.claude/plugins/` auto-load without it.
+Changes to the plugin will be picked up when you restart Claude Code.
+
+### Quick Install (Available After Repository Goes Public)
+
+Once public, users will be able to install via:
+```bash
+curl -fsSL https://raw.githubusercontent.com/fractional-ai/pasta-maker/main/install.sh | bash
+```
 
 ### Verify Installation
 
@@ -101,6 +118,30 @@ You: yes
 Claude: ✓ Tab 'Frontend Tests' created
         ✓ Tab 'Backend Tests' created
 ```
+
+## What's Next
+
+Once the repository becomes public, we're planning:
+
+**Distribution & Accessibility:**
+- One-line install via curl for frictionless onboarding
+- Package manager support (npm, brew, apt)
+- Pre-built binaries for major platforms
+- Public documentation site with interactive examples
+
+**Feature Enhancements:**
+- Task templates for common workflows (test suites, multi-service dev, CI/CD simulation)
+- Progress monitoring dashboard across all spawned tabs
+- Task retry and error recovery mechanisms
+- Support for remote task execution (SSH, cloud instances)
+
+**Community & Ecosystem:**
+- Plugin marketplace integration
+- Community-contributed task templates
+- Integration examples with popular frameworks
+- Video tutorials and use case guides
+
+Stay tuned! Follow releases at https://github.com/fractional-ai/pasta-maker/releases
 
 ## Requirements
 

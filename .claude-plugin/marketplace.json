@@ -1,0 +1,14 @@
+{
+  "name": "pasta-maker-local",
+  "owner": {
+    "name": "Darian Bailey"
+  },
+  "plugins": [
+    {
+      "name": "pasta-maker",
+      "source": ".",
+      "description": "Intelligently parallelize tasks across terminal tabs by analyzing dependencies",
+      "version": "1.0.0"
+    }
+  ]
+}
