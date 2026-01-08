@@ -1,3 +1,8 @@
+---
+description: Display comprehensive help and documentation for Pasta Maker
+allowed-tools: Read
+---
+
 # Pasta Maker - Help
 
 Display comprehensive help information about the Pasta Maker plugin.
