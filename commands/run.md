@@ -24,18 +24,20 @@ Engage in conversation to gather complete task information:
 **Start by asking:**
 "What tasks would you like to accomplish? Please describe them, and I'll help determine which can run in parallel."
 
-**For each task, understand:**
-- What needs to be done
-- What files/resources it involves
+**Required information for each task:**
 - What command will be run (e.g., npm test, claude with a prompt, etc.)
-- Any prerequisites or dependencies
-- The working directory
+- The working directory (default to current directory if not specified)
 
-**Continue asking clarifying questions** until you have:
-- A complete list of tasks
-- Clear understanding of what each task does
-- The command to run for each task
-- The working directory for each task
+**Only ask clarifying questions if:**
+- The command is ambiguous or unclear
+- Multiple commands could match what the user described
+- The working directory is uncertain (different from current directory)
+- Dependencies between tasks are unclear
+
+**Smart defaults to assume:**
+- Working directory is the current directory unless the user mentions otherwise
+- Standard commands (npm test, npm build, etc.) don't need clarification
+- Tasks are independent unless the user mentions dependencies
 
 **After collecting tasks, validate:**
 
@@ -54,18 +56,28 @@ When asking clarifying questions:
 3. **Place ALL questions at the END of your response**
 4. Make questions easy to scan and answer
 
-**Example dialogue:**
+**Example dialogue (minimal questions):**
 ```
 User: I need to run tests, build the project, and update documentation
 
-You: I can help you parallelize these tasks! Let me gather some details to create an optimal execution plan.
+You: I can help you parallelize these tasks! I'm assuming:
+- Tests: npm test
+- Build: npm run build
+- Documentation: You'll need to specify the command for this one
 
-I have a few questions to clarify the specifics:
+Is "npm test" and "npm run build" correct? And what command should I use for updating documentation?
+```
 
-1. Tests - Which test suite? What's the exact command? (e.g., npm test, npm run test:frontend)
-2. Build - What's the build command? (e.g., npm run build) Does it depend on tests passing first?
-3. Documentation - Which files need updating? Will this be a shell command or do you want a Claude instance to help you write the docs?
-4. Working directory - Do all these tasks run from the same directory? If so, what's the absolute path?
+**Example dialogue (clear requirements):**
+```
+User: Run npm test, npm run build, and update the README
+
+You: Got it! I'll set up:
+- Tests: npm test
+- Build: npm run build
+- README: I'll assume you want a Claude instance to help update it
+
+All running from /Users/you/project. Does that sound right?
 ```
 
 ### Phase 2: Dependency Analysis
@@ -561,10 +573,10 @@ Then try running /pasta-maker:run again.
 ## Tips for Users
 
 **Best practices:**
-- Provide complete task information upfront to speed up planning
-- Use absolute paths for directories
-- Test commands individually first if unsure
-- Close unnecessary tabs before spawning to avoid clutter
+- Provide complete task information upfront to skip questions entirely (e.g., "Run npm test, npm run build in /path/to/project")
+- Mention dependencies explicitly (e.g., "build after tests complete")
+- Working directory defaults to current directory if not specified
+- Standard npm/shell commands are recognized automatically
 - For Claude tasks, prompts are automatically submitted
 
 **Common patterns:**
@@ -582,16 +594,16 @@ You: What tasks would you like to accomplish? Please describe them, and I'll hel
 
 User: I need to run frontend tests, backend tests, and then build the project
 
-You: Great! I can help parallelize these. Let me gather a few details:
+You: Perfect! I'll set up:
+- Frontend tests: npm run test:frontend
+- Backend tests: npm run test:backend
+- Build: npm run build (after tests complete)
 
-1. Frontend tests - What's the exact command? (e.g., npm run test:frontend)
-2. Backend tests - What's the exact command? (e.g., npm run test:backend)
-3. Build - What's the build command? (e.g., npm run build) Should it wait for tests to pass first?
-4. Do all these tasks run from the same directory? If so, what's the absolute path?
+All running from /Users/me/project. Is that correct?
 
-User: Yes, npm run test:frontend, npm run test:backend, npm run build. All from /Users/me/project
+User: Yes
 
-You: Perfect! Let me analyze these...
+You: Great! Let me analyze the dependencies...
 
 [Analyzes dependencies using the methodology]
 
