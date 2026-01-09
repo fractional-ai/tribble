@@ -28,6 +28,11 @@ Engage in conversation to gather complete task information:
 - What command will be run (e.g., npm test, claude with a prompt, etc.)
 - The working directory (default to current directory if not specified)
 
+**Core principle: Respect user intent and minimize friction**
+- The user invoked `/pasta-maker:run` - they want parallelization, don't question this
+- Infer from context whenever possible (e.g., "random" means make choices, "here" means current dir)
+- Only ask questions when genuinely needed to complete the task
+
 **Only ask clarifying questions if:**
 - The command is ambiguous or unclear
 - Multiple commands could match what the user described
