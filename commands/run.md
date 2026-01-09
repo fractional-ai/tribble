@@ -87,18 +87,7 @@ All running from /Users/you/project. Does that sound right?
 
 ### Phase 2: Dependency Analysis
 
-Read the dependency analysis methodology using the Read tool:
-
-Use the Read tool to read: `${CLAUDE_PLUGIN_ROOT}/lib/dependency-analyzer.md`
-
-If this fails:
-"Error: Could not load dependency analysis methodology.
- This usually means the plugin wasn't installed correctly.
- Please verify ${CLAUDE_PLUGIN_ROOT}/lib/dependency-analyzer.md exists."
-
-Don't continue to Phase 3 without the methodology.
-
-Then analyze the tasks using these criteria:
+Analyze task dependencies using these criteria:
 
 **Dependencies exist when:**
 - Task B requires Task A's output/artifacts
@@ -113,8 +102,23 @@ Then analyze the tasks using these criteria:
 - Neither depends on the other's completion
 - No file system conflicts
 
-**Create a dependency graph:**
+**Decision Tree (for each task pair):**
+1. Does B need A's output/files? → YES: A before B | NO: Continue
+2. Does A need B's output/files? → YES: B before A | NO: Continue
+3. Do both write same files? → YES: Sequential | NO: Continue
+4. Same exclusive resources (port, DB writes)? → YES: Sequential | NO: Continue
+5. → PARALLEL (safe to run together)
 
+**Common Patterns:**
+- Separate files/dirs (frontend tests + backend tests) → Parallel
+- Read-only operations (lint + type check) → Parallel
+- Different ports (frontend:3000 + backend:4000) → Parallel
+- Multiple datasets (process file1 + process file2) → Parallel
+- Output dependency (generate → process) → Sequential
+- Validation (write code → test code) → Sequential
+- Build chain (test → build → deploy) → Sequential
+
+**Create dependency graph:**
 ```
 Task Graph:
 - Task A: [description] (dependencies: none)
@@ -398,15 +402,18 @@ Next Steps:
 I'll stay in this tab to help coordinate or answer questions!
 ```
 
-**When user returns, first assess results:**
+**When user returns:**
 
-Ask: "How did the parallel tasks go? Please tell me:
- - Which tasks succeeded
- - Which tasks failed (if any)
- - Any error messages you saw"
+If user says "done" or similar (e.g., "finished", "complete", "all done"):
+- Assume all tasks succeeded
+- Immediately proceed to spawn the next sequential group
+- Do NOT ask for details or confirmation
 
-Based on response:
-- If all succeeded: Proceed to next group
+If user reports specific failures or issues:
+- Ask which task failed and whether it was critical
+- Provide decision tree for handling failures
+
+Based on specific failure reports:
 - If some failed but not critical: Ask if they want to continue
 - If critical tasks failed: Recommend fixing before continuing
 - If unsure: Ask user what they want to do
@@ -676,11 +683,9 @@ I'll stay in this tab to help coordinate or answer questions!
 
 [User monitors tabs, returns when done]
 
-User: Both tests passed!
+User: done
 
-You: Excellent! All Group 1 tasks completed successfully.
-
-Now spawning Group 2 (1 task)...
+You: Now spawning Group 2 (1 task)...
 
 [Run: "${CLAUDE_PLUGIN_ROOT}/scripts/spawn-iterm2.sh" "Build Project" "npm run build" "/Users/me/project"]
 [1/1] ✓ Tab 'Build Project' created
