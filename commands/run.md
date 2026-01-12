@@ -82,7 +82,72 @@ User: "run tests in my project directory"
 
 If validation fails, report the issue and ask user to clarify, then retry collection.
 
-### Step 2: Spawn All Tabs Immediately
+### Step 1.5: Detect Dependencies (Simple Keyword Detection)
+
+After collecting tasks, analyze the user's ORIGINAL request for sequential keywords.
+
+**Keywords indicating sequential execution**:
+- "then" - "run tests then build"
+- "after" - "start server after installing deps"
+- "before" - "build before deploying"
+- "first" ... "then" - "first run tests, then build"
+- "once" ... "then" - "once tests pass, then deploy"
+- Numbered lists - "1. install, 2. build, 3. deploy"
+
+**Detection algorithm**:
+
+1. Look at the user's ORIGINAL message (not the processed task list)
+2. Check if it contains sequential keywords (then, after, before, numbered list)
+3. If YES → create sequential groups:
+   - Split tasks at keyword positions
+   - Tasks before keyword = Group 1
+   - Tasks after keyword = Group 2
+   - Multiple keywords = multiple groups
+4. If NO → all tasks = Group 1 (parallel, spawn immediately)
+
+**Examples**:
+
+```
+User: "run frontend tests, backend tests, then build"
+→ Group 1: [frontend tests, backend tests] (parallel)
+→ Group 2: [build] (after Group 1)
+→ Mode: SEQUENTIAL
+
+User: "start frontend and backend servers"
+→ Group 1: [frontend, backend] (parallel)
+→ Mode: PARALLEL (no keywords detected, spawn all immediately)
+
+User: "1. npm install, 2. npm test, 3. npm build"
+→ Group 1: [install]
+→ Group 2: [test]
+→ Group 3: [build]
+→ Mode: SEQUENTIAL
+
+User: "open claude for auth and docs"
+→ Group 1: [auth session, docs session] (parallel)
+→ Mode: PARALLEL (no keywords, spawn all immediately)
+
+User: "start frontend and backend, then run tests"
+→ Group 1: [frontend, backend] (parallel)
+→ Group 2: [tests]
+→ Mode: SEQUENTIAL
+```
+
+**Important notes**:
+- Use ORIGINAL user message for detection (they might say "tests then build" even if tasks are labeled differently)
+- If only 1 group → PARALLEL mode (spawn all immediately, current behavior)
+- If 2+ groups → SEQUENTIAL mode (spawn group by group, with coordination)
+- Preserve order mentioned by user
+
+### Step 2: Spawn Tasks (Parallel or Sequential)
+
+**Determine mode based on groups from Step 1.5**:
+- **1 group** → PARALLEL MODE (spawn all tasks immediately)
+- **2+ groups** → SEQUENTIAL MODE (spawn group by group, with coordination)
+
+#### PARALLEL MODE (1 group only)
+
+Use this mode when NO sequential keywords were detected. Spawn all tasks immediately in parallel.
 
 **Detect terminal**:
 
@@ -162,9 +227,79 @@ Task 2: [Tab name]
 Supported terminals: iTerm2, Terminal.app, tmux, GNOME Terminal, Konsole, Alacritty, Kitty, Warp, Hyper, Windows Terminal
 ```
 
-### Step 3: Success Message
+#### SEQUENTIAL MODE (2+ groups)
 
-After all tabs spawn successfully:
+Use this mode when sequential keywords were detected. Spawn groups one at a time with user coordination.
+
+**Spawn Group 1 first**:
+
+1. Detect terminal (same as parallel mode)
+2. Spawn ONLY the tasks in Group 1
+3. Show progress as they spawn
+
+**Show coordination message**:
+
+```
+✓ Created N tab(s) (Group 1 of M):
+  - Tab '[name]' - [brief description]
+  - Tab '[name]' - [brief description]
+
+Next Steps:
+1. Switch to each spawned tab to monitor progress
+2. Return to THIS tab when Group 1 tasks complete
+3. Tell me "done" or "finished" to spawn Group 2
+
+Remaining groups:
+  - Group 2: [list task names]
+  - Group 3: [list task names]
+  ...
+```
+
+**Wait for user to return**:
+
+When user returns and says:
+- **"done", "finished", "complete", "ready", "next", "ok"** → Spawn next group immediately
+- **Reports failures** (e.g., "tests failed") → Ask if they want to continue or stop
+
+**Spawn next group**:
+
+```
+Great! Spawning Group 2 now...
+
+[Detect terminal, spawn Group 2 tasks]
+
+[1/N] ✓ Tab '[name]' created
+[2/N] ✓ Tab '[name]' created
+
+✓ Created N tab(s) (Group 2 of M):
+  - Tab '[name]' - [brief description]
+
+[If more groups remaining:]
+Return here when done to spawn Group 3
+
+[If this was the last group:]
+All done! All groups spawned successfully.
+```
+
+**Continue until all groups spawned**.
+
+**Handle failures between groups**:
+
+If user reports failures:
+```
+User: "Tests failed"
+
+You: The tests in Group 1 failed. Would you like to:
+     1. Continue anyway and spawn Group 2 (build)
+     2. Stop here (you can fix tests and re-run manually)
+     3. Retry spawning Group 1
+
+     What would you like to do?
+```
+
+### Step 3: Success Message (Parallel Mode Only)
+
+In **PARALLEL MODE**, after all tabs spawn successfully, show:
 
 ```
 ✓ Created N tab(s):
@@ -175,6 +310,8 @@ Your sessions are ready! Switch to the tabs to use them.
 ```
 
 Keep it brief. No coordination needed - user manages tabs independently.
+
+**Note**: In SEQUENTIAL MODE, success messages are shown after each group (see Step 2). No final summary needed.
 
 ## Special Cases
 
@@ -280,7 +417,7 @@ Fix:
 
 Fix:
 1. Open iTerm2 or Terminal.app
-2. Run /pasta-maker:run again from within that terminal
+2. Run /tribble:run again from within that terminal
 ```
 
 ### Not in tmux Session
@@ -290,7 +427,7 @@ Fix:
 
 Fix:
 1. Start tmux: tmux new-session -s pasta
-2. Run /pasta-maker:run again from within tmux
+2. Run /tribble:run again from within tmux
 ```
 
 ## Complete Examples
@@ -298,7 +435,7 @@ Fix:
 ### Example 1: Single Claude Session
 
 ```
-User: /pasta-maker:run open claude to refactor the auth module
+User: /tribble:run open claude to refactor the auth module
 
 You: I'll spawn a Claude session to help with auth refactoring.
 
@@ -318,7 +455,7 @@ Your session is ready!
 ### Example 2: Multiple Commands
 
 ```
-User: /pasta-maker:run start frontend, backend, and test watcher
+User: /tribble:run start frontend, backend, and test watcher
 
 You: What commands should I run for each?
 
@@ -349,7 +486,7 @@ Your sessions are ready!
 ### Example 3: Multiple Claude Sessions
 
 ```
-User: /pasta-maker:run open claude for auth work and another for updating docs
+User: /tribble:run open claude for auth work and another for updating docs
 
 You: I'll spawn 2 Claude sessions.
 
@@ -369,11 +506,93 @@ You: I'll spawn 2 Claude sessions.
 Your sessions are ready!
 ```
 
+### Example 4: Sequential Tasks (with "then" keyword)
+
+```
+User: /tribble:run run tests then build
+
+You: [Detects "then" keyword in original message]
+     [Group 1: tests, Group 2: build]
+     [SEQUENTIAL MODE - spawn group by group]
+
+     I'll spawn the tests first, then the build after they complete.
+
+[Run: "${CLAUDE_PLUGIN_ROOT}/scripts/detect-terminal.sh"]
+[Output: iterm2]
+
+[Spawn Group 1 only]
+[Run: "${CLAUDE_PLUGIN_ROOT}/scripts/spawn-iterm2.sh" "Run Tests" "npm test" "/Users/me/project"]
+[1/1] ✓ Tab 'Run Tests' created
+
+✓ Created 1 tab (Group 1 of 2):
+  - Tab 'Run Tests' - npm test
+
+Next Steps:
+1. Switch to 'Run Tests' tab to monitor
+2. Return here when complete
+3. Tell me "done" to spawn the build
+
+Remaining groups:
+  - Group 2: Build Project
+
+[User monitors tests, they pass, returns]
+
+User: done
+
+You: Great! Spawning Group 2 now...
+
+[Run: "${CLAUDE_PLUGIN_ROOT}/scripts/spawn-iterm2.sh" "Build Project" "npm run build" "/Users/me/project"]
+[1/1] ✓ Tab 'Build Project' created
+
+✓ Created 1 tab (Group 2 of 2):
+  - Tab 'Build Project' - npm run build
+
+All done! All groups spawned successfully.
+```
+
+### Example 5: Numbered List (Multiple Sequential Groups)
+
+```
+User: /tribble:run 1. install deps, 2. run tests, 3. build
+
+You: [Detects numbered list]
+     [Group 1: install, Group 2: tests, Group 3: build]
+     [SEQUENTIAL MODE - 3 groups]
+
+     I'll spawn these in order: install → tests → build
+
+[Spawn Group 1]
+✓ Created 1 tab (Group 1 of 3):
+  - Install Deps
+
+Return here when done to spawn Group 2 (tests)
+
+User: done
+
+You: Spawning Group 2...
+
+✓ Created 1 tab (Group 2 of 3):
+  - Run Tests
+
+Return here when done to spawn Group 3 (build)
+
+User: done
+
+You: Spawning Group 3...
+
+✓ Created 1 tab (Group 3 of 3):
+  - Build Project
+
+All done!
+```
+
 ## Remember
 
 - **Infer aggressively** - Don't ask questions you can reasonably answer
-- **Spawn immediately** - No approvals, no plans, no waiting
-- **All tasks in parallel** - Spawn everything at once
-- **Brief success message** - Confirm what was created, then done
-- **No coordination** - User manages tabs independently
-- **Trust the user** - They invoked the command, they want tabs spawned
+- **Detect dependencies** - Check for "then", "after", "before", numbered lists
+- **Spawn mode**:
+  - No keywords → Parallel (spawn all immediately)
+  - Keywords detected → Sequential (spawn group by group)
+- **No approvals** - Spawn immediately (just spawn in groups if sequential)
+- **Brief messages** - Confirm what was created, coordinate between groups if needed
+- **Trust the user** - They invoked the command and specified the order
