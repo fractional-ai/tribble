@@ -39,6 +39,7 @@ When the user provides input, determine if it's a shell command or a Claude prom
 - Contains shell operators: &&, ||, |, >, <, ;
 - Contains file paths or flags: ./script.sh, --flag, -x
 - Follows command patterns: "run X", "start X", "build X" where X is a known script name
+- Git operations: "git worktree", "git checkout", "git clone", etc. (but see Step 1.8 for worktree special handling)
 
 **Claude prompt indicators** (treat as Claude session):
 - Natural language requests: "write a poem", "explain quantum physics", "help me understand X"
@@ -185,11 +186,87 @@ User: "start frontend and backend, then run tests"
 - **1 group** → PARALLEL MODE (spawn all tasks immediately)
 - **2+ groups** → SEQUENTIAL MODE (spawn group by group, with coordination)
 
+### Step 1.8: Pre-Spawn Worktree Setup (Critical)
+
+**BEFORE spawning any tabs, check if tasks require git worktree setup**.
+
+Worktree commands are time-consuming and user needs to see output. Handle them specially:
+
+**Detection**: A task needs worktree setup if:
+- User explicitly mentions "worktree", "git worktree", or "new worktree"
+- User wants to work on a different branch in a Claude session
+- Task involves creating a separate git working directory
+
+**Worktree Setup Process**:
+
+1. **Run worktree commands in CURRENT window** (not spawned tab)
+2. **Show progress** as it executes
+3. **Update task directory** to point to new worktree location
+4. **Then spawn** the Claude session
+
+**Example workflow**:
+
+```
+User: /tribble:run open claude to work on feature-xyz in a new worktree
+
+You: I'll create the worktree first, then spawn your Claude session.
+
+Creating worktree for feature-xyz...
+
+[Run in CURRENT window: git worktree add ../feature-xyz -b feature-xyz]
+
+✓ Worktree created at /Users/me/project/../feature-xyz
+
+Now spawning Claude session...
+
+[Spawn: spawn.sh "Feature XYZ" "claude" "/Users/me/project/../feature-xyz" "Work on feature-xyz"]
+
+✓ Created tab 'Feature XYZ' - Claude session in new worktree
+```
+
+**Implementation**:
+
+```bash
+# 1. Detect worktree need from user request
+# 2. Extract branch name
+# 3. Determine worktree path (usually ../branch-name or ../worktrees/branch-name)
+
+# 4. Execute worktree command in CURRENT window first
+git worktree add [path] -b [branch-name]
+
+# 5. Check if successful
+if [ $? -eq 0 ]; then
+  # Update task directory to worktree path
+  TASK_DIRECTORY="[worktree-path]"
+
+  # 6. NOW spawn the Claude session with correct directory
+  "${CLAUDE_PLUGIN_ROOT}/scripts/spawn.sh" "[name]" "claude" "$TASK_DIRECTORY" "[prompt]"
+else
+  # Report error, don't spawn
+  echo "✗ Worktree creation failed"
+  exit 1
+fi
+```
+
+**Key points**:
+- ALWAYS run worktree commands in current window BEFORE spawning
+- User sees the git output (branches created, files copied, etc.)
+- Claude session spawns only AFTER worktree is ready
+- Working directory for spawned tab points to the new worktree location
+
+**Common worktree patterns**:
+
+```
+"work on auth in new worktree" → create worktree, spawn Claude
+"create worktree for feature-x" → create worktree, spawn Claude
+"new branch in separate worktree" → create worktree, spawn Claude
+```
+
 #### PARALLEL MODE (1 group only)
 
 Use this mode when NO sequential keywords were detected. Spawn all tasks immediately in parallel.
 
-**For each task, spawn immediately using the unified spawn script**:
+**For each task, spawn immediately using the unified spawn script** (after any worktree setup from Step 1.8):
 
 ```bash
 "${CLAUDE_PLUGIN_ROOT}/scripts/spawn.sh" "[tab_name]" "[command]" "[directory]" "[prompt_if_claude]"
@@ -635,9 +712,41 @@ You: Spawning Group 3...
 All done!
 ```
 
+### Example 6: Worktree Creation (Pre-Spawn Setup)
+
+```
+User: /tribble:run open claude to work on feature-login in a new worktree
+
+You: [Detects "worktree" keyword - needs pre-spawn setup]
+
+     I'll create the worktree first, then spawn your Claude session.
+
+     Creating worktree for feature-login...
+
+[Run in CURRENT window: git worktree add ../feature-login -b feature-login]
+
+Preparing worktree (new branch 'feature-login')
+HEAD is now at a1b2c3d Initial commit
+✓ Worktree created at /Users/me/project/../feature-login
+
+     Now spawning Claude session in the new worktree...
+
+[Run: "${CLAUDE_PLUGIN_ROOT}/scripts/spawn.sh" "Feature Login" "claude" "/Users/me/project/../feature-login" "Work on feature-login branch"]
+
+[1/1] ✓ Tab 'Feature Login' created
+
+✓ Created 1 tab:
+  - Tab 'Feature Login' - Claude session in worktree at ../feature-login
+
+Your session is ready!
+```
+
+**Key difference**: Worktree command ran in CURRENT window first, user saw the output, THEN the Claude tab was spawned pointing to the new worktree directory.
+
 ## Remember
 
 - **Infer aggressively** - Don't ask questions you can reasonably answer
+- **Worktree pre-spawn setup** - ALWAYS run worktree commands in CURRENT window BEFORE spawning tabs. User needs to see git output.
 - **Detect dependencies** - Check for "then", "after", "before", numbered lists
 - **Spawn mode**:
   - No keywords → Parallel (spawn all immediately)
