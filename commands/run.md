@@ -189,32 +189,13 @@ User: "start frontend and backend, then run tests"
 
 Use this mode when NO sequential keywords were detected. Spawn all tasks immediately in parallel.
 
-**Detect terminal**:
+**For each task, spawn immediately using the unified spawn script**:
 
 ```bash
-"${CLAUDE_PLUGIN_ROOT}/scripts/detect-terminal.sh"
+"${CLAUDE_PLUGIN_ROOT}/scripts/spawn.sh" "[tab_name]" "[command]" "[directory]" "[prompt_if_claude]"
 ```
 
-This outputs one of: `iterm2`, `terminal`, `tmux`, `gnome-terminal`, `konsole`, `alacritty`, `kitty`, `warp`, `hyper`, `windows-terminal`, or `unknown`
-
-**Map terminal to spawn script**:
-- `iterm2` → `spawn-iterm2.sh`
-- `terminal` → `spawn-terminal-app.sh`
-- `tmux` → `spawn-tmux.sh`
-- `gnome-terminal` → `spawn-gnome-terminal.sh`
-- `konsole` → `spawn-konsole.sh`
-- `alacritty` → `spawn-alacritty.sh`
-- `kitty` → `spawn-kitty.sh`
-- `warp` → `spawn-warp.sh`
-- `hyper` → `spawn-hyper.sh`
-- `windows-terminal` → `spawn-windows-terminal.sh`
-- `unknown` → skip to manual instructions
-
-**For each task, spawn immediately using Bash tool**:
-
-```bash
-"${CLAUDE_PLUGIN_ROOT}/scripts/spawn-[terminal-type].sh" "[tab_name]" "[command]" "[directory]" "[prompt_if_claude]"
-```
+The unified spawn script automatically detects the terminal type and spawns the tab accordingly. It supports: iTerm2, Terminal.app, tmux, GNOME Terminal, Konsole, Alacritty, Kitty, Warp, Hyper, Windows Terminal, and VS Code.
 
 **IMPORTANT: Tab name sanitization**:
 Before spawning, sanitize tab names:
@@ -273,9 +254,8 @@ Use this mode when sequential keywords were detected. Spawn groups one at a time
 
 **Spawn Group 1 first**:
 
-1. Detect terminal (same as parallel mode)
-2. Spawn ONLY the tasks in Group 1
-3. Show progress as they spawn
+1. Spawn ONLY the tasks in Group 1 using the unified spawn script
+2. Show progress as they spawn
 
 **Show coordination message**:
 
@@ -357,20 +337,61 @@ Keep it brief. No coordination needed - user manages tabs independently.
 
 ### Claude Code Instances
 
-When spawning Claude, pass the prompt as the 4th argument:
+When spawning Claude sessions, **always include relevant context from the current session** so the new Claude instance understands what's being worked on.
 
-```bash
-"${CLAUDE_PLUGIN_ROOT}/scripts/spawn-[terminal].sh" "Work on Auth" "claude" "/path/to/dir" "Help me refactor the authentication module"
+**Context to gather and include**:
+1. **Current task/goal** - What is the user working on in this session?
+2. **Relevant files** - What files have been discussed, read, or modified?
+3. **Errors or issues** - Any errors encountered or problems being debugged?
+4. **Technical context** - Framework, language, architecture details mentioned
+5. **Git context** - Current branch, recent changes (use Read tool on git commands if needed)
+
+**Format the enhanced prompt**:
+```
+You're being spawned from another Claude session. Here's the context:
+
+## Current Work
+[Summary of what the user is working on - 2-3 sentences]
+
+## Relevant Files
+[List files that have been discussed or are relevant to the task]
+
+## Background
+[Any errors, issues, or technical details the new session needs to know]
+
+## Task
+[User's specific request for this new session]
 ```
 
-The spawn script automatically pipes the prompt to Claude via stdin.
+**Example**:
+```bash
+# User in current session is debugging auth issues in src/auth.ts
+# They want to spawn a Claude session to work on tests in parallel
+
+PROMPT="You're being spawned from another Claude session. Here's the context:
+
+## Current Work
+Working on fixing authentication bug where JWT tokens aren't being validated correctly. The main session is debugging src/auth.ts.
+
+## Relevant Files
+- src/auth.ts (JWT validation logic)
+- src/middleware/auth.middleware.ts (uses validation)
+- tests/auth.test.ts (needs updating)
+
+## Task
+Write comprehensive tests for the JWT validation logic in src/auth.ts to ensure tokens are validated correctly."
+
+"${CLAUDE_PLUGIN_ROOT}/scripts/spawn.sh" "Auth Tests" "claude" "/Users/me/project" "$PROMPT"
+```
+
+The spawn script automatically pipes the enhanced prompt to Claude via stdin.
 
 ### Commands with Complex Arguments
 
 For commands with quotes, pipes, or special characters:
 
 ```bash
-"${CLAUDE_PLUGIN_ROOT}/scripts/spawn-[terminal].sh" "Complex Task" "npm test && npm run lint" "/path/to/dir"
+"${CLAUDE_PLUGIN_ROOT}/scripts/spawn.sh" "Complex Task" "npm test && npm run lint" "/path/to/dir"
 ```
 
 The spawn script handles proper quoting and escaping.
@@ -380,7 +401,7 @@ The spawn script handles proper quoting and escaping.
 Commands that need user input work fine - they'll prompt in their own tab:
 
 ```bash
-"${CLAUDE_PLUGIN_ROOT}/scripts/spawn-[terminal].sh" "Deploy" "npm run deploy" "/path/to/dir"
+"${CLAUDE_PLUGIN_ROOT}/scripts/spawn.sh" "Deploy" "npm run deploy" "/path/to/dir"
 ```
 
 ### Long Commands
@@ -479,10 +500,7 @@ User: /tribble:run open claude to refactor the auth module
 
 You: I'll spawn a Claude session to help with auth refactoring.
 
-[Run: "${CLAUDE_PLUGIN_ROOT}/scripts/detect-terminal.sh"]
-[Output: iterm2]
-
-[Run: "${CLAUDE_PLUGIN_ROOT}/scripts/spawn-iterm2.sh" "Refactor Auth Module" "claude" "/Users/me/project" "Help me refactor the authentication module"]
+[Run: "${CLAUDE_PLUGIN_ROOT}/scripts/spawn.sh" "Refactor Auth Module" "claude" "/Users/me/project" "Help me refactor the authentication module"]
 
 [1/1] ✓ Tab 'Refactor Auth Module' created
 
@@ -503,16 +521,13 @@ User: npm run dev:frontend, npm run dev:backend, npm test:watch
 
 You: I'll spawn 3 tabs for your development workflow.
 
-[Run: "${CLAUDE_PLUGIN_ROOT}/scripts/detect-terminal.sh"]
-[Output: iterm2]
-
-[Run: "${CLAUDE_PLUGIN_ROOT}/scripts/spawn-iterm2.sh" "Frontend" "npm run dev:frontend" "/Users/me/project"]
+[Run: "${CLAUDE_PLUGIN_ROOT}/scripts/spawn.sh" "Frontend" "npm run dev:frontend" "/Users/me/project"]
 [1/3] ✓ Tab 'Frontend' created
 
-[Run: "${CLAUDE_PLUGIN_ROOT}/scripts/spawn-iterm2.sh" "Backend" "npm run dev:backend" "/Users/me/project"]
+[Run: "${CLAUDE_PLUGIN_ROOT}/scripts/spawn.sh" "Backend" "npm run dev:backend" "/Users/me/project"]
 [2/3] ✓ Tab 'Backend' created
 
-[Run: "${CLAUDE_PLUGIN_ROOT}/scripts/spawn-iterm2.sh" "Test Watcher" "npm test:watch" "/Users/me/project"]
+[Run: "${CLAUDE_PLUGIN_ROOT}/scripts/spawn.sh" "Test Watcher" "npm test:watch" "/Users/me/project"]
 [3/3] ✓ Tab 'Test Watcher' created
 
 ✓ Created 3 tabs:
@@ -530,13 +545,10 @@ User: /tribble:run open claude for auth work and another for updating docs
 
 You: I'll spawn 2 Claude sessions.
 
-[Run: "${CLAUDE_PLUGIN_ROOT}/scripts/detect-terminal.sh"]
-[Output: terminal]
-
-[Run: "${CLAUDE_PLUGIN_ROOT}/scripts/spawn-terminal-app.sh" "Auth Work" "claude" "/Users/me/project" "Help me work on the authentication system"]
+[Run: "${CLAUDE_PLUGIN_ROOT}/scripts/spawn.sh" "Auth Work" "claude" "/Users/me/project" "Help me work on the authentication system"]
 [1/2] ✓ Tab 'Auth Work' created
 
-[Run: "${CLAUDE_PLUGIN_ROOT}/scripts/spawn-terminal-app.sh" "Update Docs" "claude" "/Users/me/project" "Help me update the documentation"]
+[Run: "${CLAUDE_PLUGIN_ROOT}/scripts/spawn.sh" "Update Docs" "claude" "/Users/me/project" "Help me update the documentation"]
 [2/2] ✓ Tab 'Update Docs' created
 
 ✓ Created 2 tabs:
@@ -557,11 +569,8 @@ You: [Detects "then" keyword in original message]
 
      I'll spawn the tests first, then the build after they complete.
 
-[Run: "${CLAUDE_PLUGIN_ROOT}/scripts/detect-terminal.sh"]
-[Output: iterm2]
-
 [Spawn Group 1 only]
-[Run: "${CLAUDE_PLUGIN_ROOT}/scripts/spawn-iterm2.sh" "Run Tests" "npm test" "/Users/me/project"]
+[Run: "${CLAUDE_PLUGIN_ROOT}/scripts/spawn.sh" "Run Tests" "npm test" "/Users/me/project"]
 [1/1] ✓ Tab 'Run Tests' created
 
 ✓ Created 1 tab (Group 1 of 2):
@@ -581,7 +590,7 @@ User: done
 
 You: Great! Spawning Group 2 now...
 
-[Run: "${CLAUDE_PLUGIN_ROOT}/scripts/spawn-iterm2.sh" "Build Project" "npm run build" "/Users/me/project"]
+[Run: "${CLAUDE_PLUGIN_ROOT}/scripts/spawn.sh" "Build Project" "npm run build" "/Users/me/project"]
 [1/1] ✓ Tab 'Build Project' created
 
 ✓ Created 1 tab (Group 2 of 2):

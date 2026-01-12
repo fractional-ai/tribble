@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Validates Pasta Maker installation and environment
+# Validates Tribble installation and environment
 # Usage: ./scripts/validate-installation.sh
 
 set -e
@@ -10,7 +10,7 @@ RED='\033[0;31m'
 YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
-echo "=== Pasta Maker Installation Validator ==="
+echo "=== Tribble Installation Validator ==="
 echo ""
 
 ERRORS=0
@@ -45,13 +45,9 @@ echo ""
 # Check 1: Required files exist
 echo "Checking required files..."
 REQUIRED_FILES=(
-    "scripts/detect-terminal.sh"
-    "scripts/spawn-iterm2.sh"
-    "scripts/spawn-terminal-app.sh"
-    "scripts/spawn-tmux.sh"
+    "scripts/spawn.sh"
     "scripts/lib/common.sh"
     "commands/run.md"
-    "lib/dependency-analyzer.md"
 )
 
 for file in "${REQUIRED_FILES[@]}"; do
@@ -77,19 +73,38 @@ echo ""
 
 # Check 3: Terminal detection
 echo "Checking terminal detection..."
-if [ -f "$PLUGIN_ROOT/scripts/detect-terminal.sh" ]; then
-    DETECTED=$("$PLUGIN_ROOT/scripts/detect-terminal.sh" 2>/dev/null || echo "failed")
-    if [ "$DETECTED" = "failed" ]; then
-        fail "Terminal detection script failed"
-    elif [ "$DETECTED" = "unknown" ]; then
-        warn "Terminal type: unknown"
-        info "Your terminal may not be supported for automatic spawning"
-        info "Consider using tmux for compatibility"
-    else
-        pass "Terminal detected: $DETECTED"
-    fi
+# Detect terminal type using environment variables (same logic as spawn.sh)
+DETECTED="unknown"
+if [ -n "$TMUX" ]; then
+    DETECTED="tmux"
+elif [ "$TERM" = "alacritty" ]; then
+    DETECTED="alacritty"
+elif [ -n "$KITTY_WINDOW_ID" ]; then
+    DETECTED="kitty"
+elif [ "$TERM_PROGRAM" = "vscode" ]; then
+    DETECTED="vscode"
+elif [ "$WARP_IS_TERMINAL" = "1" ] || [ "$TERM_PROGRAM" = "WarpTerminal" ]; then
+    DETECTED="warp"
+elif [ "$TERM_PROGRAM" = "Hyper" ]; then
+    DETECTED="hyper"
+elif [ -n "$GNOME_TERMINAL_SERVICE" ] || [ -n "$GNOME_TERMINAL_SCREEN" ]; then
+    DETECTED="gnome-terminal"
+elif [ -n "$KONSOLE_VERSION" ] || [ -n "$KONSOLE_DBUS_SERVICE" ]; then
+    DETECTED="konsole"
+elif [ -n "$ITERM_SESSION_ID" ] || [ "$TERM_PROGRAM" = "iTerm.app" ]; then
+    DETECTED="iterm2"
+elif [ "$TERM_PROGRAM" = "Apple_Terminal" ]; then
+    DETECTED="terminal"
+elif [ -n "$WT_SESSION" ] || [ -n "$WT_PROFILE_ID" ]; then
+    DETECTED="windows-terminal"
+fi
+
+if [ "$DETECTED" = "unknown" ]; then
+    warn "Terminal type: unknown"
+    info "Your terminal may not be supported for automatic spawning"
+    info "Consider using tmux for compatibility"
 else
-    fail "detect-terminal.sh not found"
+    pass "Terminal detected: $DETECTED"
 fi
 echo ""
 
@@ -124,7 +139,7 @@ echo ""
 
 # Check 5: Terminal-specific requirements
 echo "Checking terminal-specific requirements..."
-DETECTED=$("$PLUGIN_ROOT/scripts/detect-terminal.sh" 2>/dev/null || echo "unknown")
+# Use the DETECTED variable from above
 
 case "$DETECTED" in
     iterm2|terminal)
