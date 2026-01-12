@@ -30,6 +30,30 @@ Ask: "What would you like to spawn in new tabs?"
 - Claude sessions → infer from context ("work on X" = claude with prompt X)
 - Tab names → generate from task description
 
+**Detecting Claude prompts vs shell commands**:
+
+When the user provides input, determine if it's a shell command or a Claude prompt:
+
+**Shell command indicators** (treat as shell command):
+- Starts with common commands: npm, git, python, node, cargo, go, docker, make, etc.
+- Contains shell operators: &&, ||, |, >, <, ;
+- Contains file paths or flags: ./script.sh, --flag, -x
+- Follows command patterns: "run X", "start X", "build X" where X is a known script name
+
+**Claude prompt indicators** (treat as Claude session):
+- Natural language requests: "write a poem", "explain quantum physics", "help me understand X"
+- Imperative actions without command context: "create a React component", "refactor this code"
+- Creative/analysis tasks: "design a logo", "review my code", "brainstorm ideas"
+- Questions: "how do I...", "what is...", "can you..."
+- Explicit Claude mentions: "open claude to...", "claude session for..."
+
+**Default heuristic**: If unsure and input is:
+- One word without common command prefix → likely Claude prompt (e.g., "poetry", "debug")
+- Natural sentence structure → likely Claude prompt (e.g., "write a poem")
+- Technical command structure → likely shell command (e.g., "npm test")
+
+When in doubt, prefer interpreting as a Claude prompt if it reads like natural language.
+
 **Gather for each task**:
 - Command to run (or "claude" for Claude Code instances)
 - Working directory (default: current directory)
@@ -44,22 +68,38 @@ Ask: "What would you like to spawn in new tabs?"
 **Examples of good inference (NO questions needed)**:
 
 ```
+User: "write a poem"
+→ Task 1: claude, current dir, prompt: "Write a poem"
+→ Spawn immediately (natural language = Claude prompt)
+
 User: "open claude to work on auth"
 → Task 1: claude, current dir, prompt: "Work on auth"
 → Spawn immediately
 
+User: "help me debug this code"
+→ Task 1: claude, current dir, prompt: "Help me debug this code"
+→ Spawn immediately (natural language = Claude prompt)
+
 User: "run tests"
 → Task 1: npm test, current dir
-→ Spawn immediately
+→ Spawn immediately (command pattern = shell command)
 
 User: "start dev server"
 → Task 1: npm run dev, current dir
-→ Spawn immediately
+→ Spawn immediately (command pattern = shell command)
 
 User: "open claude sessions for auth and docs"
 → Task 1: claude, current dir, prompt: "Work on auth"
 → Task 2: claude, current dir, prompt: "Work on docs"
 → Spawn both immediately
+
+User: "npm test && npm build"
+→ Task 1: npm test && npm build, current dir
+→ Spawn immediately (shell operators = shell command)
+
+User: "explain how async/await works"
+→ Task 1: claude, current dir, prompt: "Explain how async/await works"
+→ Spawn immediately (question = Claude prompt)
 ```
 
 **Examples requiring ONE clarifying question**:
