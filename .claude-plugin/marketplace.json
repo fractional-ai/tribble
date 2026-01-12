@@ -1,13 +1,13 @@
 {
-  "name": "pasta-maker-local",
+  "name": "tribble-local",
   "owner": {
     "name": "Darian Bailey"
   },
   "plugins": [
     {
-      "name": "pasta-maker",
+      "name": "tribble",
       "source": ".",
-      "description": "Intelligently parallelize tasks across terminal tabs by analyzing dependencies",
+      "description": "Quickly spawn Claude Code sessions or commands in new terminal tabs",
       "version": "1.0.0"
     }
   ]

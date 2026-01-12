@@ -1,28 +1,41 @@
 ---
-description: Display comprehensive help and documentation for Pasta Maker
+description: Display help and documentation for Tribble
 allowed-tools: Read
 ---
 
-# Pasta Maker - Help
+# Tribble - Help
 
-Display comprehensive help information about the Pasta Maker plugin.
+Display help information about the Tribble plugin.
 
 ## Overview
 
-Pasta Maker is a Claude Code plugin that parallelizes tasks across terminal tabs. It analyzes dependencies between tasks and intelligently spawns them in parallel groups or sequential order.
+Tribble is a Claude Code plugin that quickly spawns Claude Code sessions or commands in new terminal tabs.
+
+Like tribbles, your sessions multiply rapidly.
 
 ## Available Commands
 
-- `/pasta-maker:run` - Start the interactive task collection and parallelization workflow
-- `/pasta-maker:help` - Display this help information
+- `/tribble:run` - Spawn tabs for your tasks
+- `/tribble:help` - Display this help information
 
 ## How It Works
 
-1. **Task Collection**: Describe your tasks in natural language
-2. **Dependency Analysis**: Claude analyzes which tasks can run in parallel
-3. **Plan Review**: You approve the execution plan
-4. **Tab Spawning**: Tasks are automatically spawned in terminal tabs
-5. **Coordination**: Claude helps coordinate sequential groups
+1. You say what to spawn
+2. Claude spawns tabs (minimal questions)
+3. Done
+
+**Single tab:**
+```
+/tribble:run open claude for auth
+→ ✓ Tab created in 5 seconds
+```
+
+**Multiple tabs:**
+```
+/tribble:run start frontend and backend
+→ What commands?
+→ ✓ Both tabs created in 10 seconds
+```
 
 ## Supported Terminals
 
@@ -67,37 +80,12 @@ Enable in: **Settings → Configure Konsole → General**
 Grant accessibility permissions:
 - System Preferences → Security & Privacy → Privacy → Accessibility
 
-## Example Use Cases
+## Common Uses
 
-**Parallel Testing:**
-```
-Task 1: Run frontend tests
-Task 2: Run backend tests
-Task 3: Run linting
-→ All run in parallel
-```
-
-**Sequential Build Pipeline:**
-```
-Group 1 (Parallel):
-  - Install dependencies
-  - Generate types
-
-Group 2 (Sequential):
-  - Build project
-
-Group 3 (Parallel):
-  - Run tests
-  - Generate docs
-```
-
-**Dev Server Setup:**
-```
-Task 1: Start frontend dev server
-Task 2: Start backend API server
-Task 3: Start database
-→ All run in parallel, stay open
-```
+- Open Claude session for specific feature
+- Start multiple dev servers
+- Run commands in parallel
+- Open multiple Claude instances for different tasks
 
 ## Debug Mode
 
@@ -111,18 +99,18 @@ This outputs environment variables and detection logic to help troubleshoot issu
 ## Getting Help
 
 - **Documentation**: See [README.md](../README.md)
-- **Issues**: Report bugs at https://github.com/fractional-ai/pasta-maker/issues
-- **Usability Report**: See [guides/USABILITY_REPORT.md](../guides/USABILITY_REPORT.md)
+- **Examples**: See [Examples.md](../Examples.md)
+- **Issues**: Report bugs at https://github.com/fractional-ai/tribble/issues
 
 ## Quick Start
 
 Simply run:
 ```
-/pasta-maker:run
+/tribble:run
 ```
 
-Then follow the interactive prompts to describe your tasks.
+Then tell Claude what you want to spawn. Tabs are created immediately - like tribbles multiplying.
 
 ---
 
-**Tip**: pasta-maker works best when you clearly describe what each task does and its dependencies. Claude will ask clarifying questions if needed.
+**Tip**: Be specific about what you want. "Open claude to work on auth" spawns instantly. For multiple tasks, mention them all upfront: "start frontend, backend, and database".

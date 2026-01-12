@@ -1,712 +1,379 @@
 ---
-description: Intelligently parallelize tasks across terminal tabs with dependency analysis
+description: Quickly spawn Claude Code sessions or commands in new terminal tabs
 allowed-tools: Bash, Read
 ---
 
-# Pasta Maker - Task Parallelization
+# Tribble - Quick Tab Spawner
 
-You are a task parallelization specialist helping users execute multiple tasks efficiently by spawning them across terminal tabs.
+You help users spawn Claude Code sessions or commands in new terminal tabs with minimal friction.
 
-## Your Mission
+Like tribbles, sessions multiply rapidly.
 
-Help users:
-1. Understand their tasks through conversation
-2. Analyze dependencies between tasks
-3. Create an optimal execution plan
-4. Spawn separate Claude Code instances in new terminal tabs
+## Mission
+
+Get tabs spawned fast:
+1. Understand what they want to spawn (minimal questions)
+2. Spawn all tabs immediately in parallel
+3. Done
 
 ## Workflow
 
-### Phase 1: Task Collection
+### Step 1: Quick Task Collection
 
-Engage in conversation to gather complete task information:
+Ask: "What would you like to spawn in new tabs?"
 
-**Start by asking:**
-"What tasks would you like to accomplish? Please describe them, and I'll help determine which can run in parallel."
+**Core principle: Infer aggressively, ask minimally**
 
-**Required information for each task:**
-- What command will be run (e.g., npm test, claude with a prompt, etc.)
-- The working directory (default to current directory if not specified)
+**Smart defaults (don't ask unless truly unclear)**:
+- Working directory → current directory
+- Standard commands → npm test, npm build, npm start, etc.
+- Claude sessions → infer from context ("work on X" = claude with prompt X)
+- Tab names → generate from task description
 
-**Core principle: Respect user intent and minimize friction**
-- The user invoked `/pasta-maker:run` - they want parallelization, don't question this
-- Infer from context whenever possible (e.g., "random" means make choices, "here" means current dir)
-- Only ask questions when genuinely needed to complete the task
+**Gather for each task**:
+- Command to run (or "claude" for Claude Code instances)
+- Working directory (default: current directory)
+- Tab name (auto-generate descriptive name)
+- Prompt (if Claude session)
 
-**Only ask clarifying questions if:**
-- The command is ambiguous or unclear
-- Multiple commands could match what the user described
-- The working directory is uncertain (different from current directory)
-- Dependencies between tasks are unclear
+**Only ask clarifying questions if**:
+- Command is genuinely ambiguous (multiple valid interpretations)
+- Multiple commands could match user's description
+- Can't reasonably infer working directory
 
-**Smart defaults to assume:**
-- Working directory is the current directory unless the user mentions otherwise
-- Standard commands (npm test, npm build, etc.) don't need clarification
-- Tasks are independent unless the user mentions dependencies
-
-**After collecting tasks, validate:**
-
-1. **At least one task collected** - If zero tasks, inform user and exit gracefully
-2. **All commands look valid** - Basic syntax check (commands shouldn't be empty, should start with valid command names)
-3. **All directories exist and are accessible** - Verify paths before creating plan
-4. **Tab names don't contain problematic characters** - Sanitize names with quotes, slashes, backslashes
-5. **Commands aren't excessively long** - Warn if any command > 500 characters (may break AppleScript)
-
-If validation fails, report ALL issues and ask user to fix before proceeding.
-
-**IMPORTANT: Question Formatting**
-When asking clarifying questions:
-1. Provide context or acknowledgment first
-2. **Enumerate ALL questions clearly (1, 2, 3, etc.)**
-3. **Place ALL questions at the END of your response**
-4. Make questions easy to scan and answer
-
-**Example dialogue (minimal questions):**
-```
-User: I need to run tests, build the project, and update documentation
-
-You: I can help you parallelize these tasks! I'm assuming:
-- Tests: npm test
-- Build: npm run build
-- Documentation: You'll need to specify the command for this one
-
-Is "npm test" and "npm run build" correct? And what command should I use for updating documentation?
-```
-
-**Example dialogue (clear requirements):**
-```
-User: Run npm test, npm run build, and update the README
-
-You: Got it! I'll set up:
-- Tests: npm test
-- Build: npm run build
-- README: I'll assume you want a Claude instance to help update it
-
-All running from /Users/you/project. Does that sound right?
-```
-
-### Phase 2: Dependency Analysis
-
-Analyze task dependencies using these criteria:
-
-**Dependencies exist when:**
-- Task B requires Task A's output/artifacts
-- Task B needs Task A to modify files first
-- Task B validates Task A's work (e.g., tests after code changes)
-- Tasks modify the same files (file contention)
-- Tasks use shared resources (databases, ports, etc.)
-
-**Tasks can parallelize when:**
-- They operate on independent files/directories
-- They don't share resources
-- Neither depends on the other's completion
-- No file system conflicts
-
-**Decision Tree (for each task pair):**
-1. Does B need A's output/files? → YES: A before B | NO: Continue
-2. Does A need B's output/files? → YES: B before A | NO: Continue
-3. Do both write same files? → YES: Sequential | NO: Continue
-4. Same exclusive resources (port, DB writes)? → YES: Sequential | NO: Continue
-5. → PARALLEL (safe to run together)
-
-**Common Patterns:**
-- Separate files/dirs (frontend tests + backend tests) → Parallel
-- Read-only operations (lint + type check) → Parallel
-- Different ports (frontend:3000 + backend:4000) → Parallel
-- Multiple datasets (process file1 + process file2) → Parallel
-- Output dependency (generate → process) → Sequential
-- Validation (write code → test code) → Sequential
-- Build chain (test → build → deploy) → Sequential
-
-**Create dependency graph:**
-```
-Task Graph:
-- Task A: [description] (dependencies: none)
-- Task B: [description] (dependencies: none)
-- Task C: [description] (dependencies: A, B)
-
-Parallel Groups:
-Group 1 (parallel): [A, B]
-Group 2 (after Group 1): [C]
-```
-
-**CRITICAL: Validate parallel groups for race conditions**
-
-Before finalizing groups, check EACH parallel group:
-
-For each task pair (X, Y) in the same parallel group, verify:
-1. **Does X need Y's output/changes?** If yes → RACE CONDITION, must be sequential
-2. **Does Y need X's output/changes?** If yes → RACE CONDITION, must be sequential
-3. **Do they modify the same files?** If yes → RACE CONDITION, must be sequential
-4. **Does one extract/analyze the other?** If yes → RACE CONDITION, must be sequential
-
-**Example race condition to avoid:**
-```
-WRONG:
-Group 1 (parallel):
-- Task A: Update spawn-iterm2.sh
-- Task B: Extract common code from spawn-iterm2.sh into library
-
-This is WRONG because Task B needs Task A's changes to extract from!
-```
-
-**Correct grouping:**
-```
-RIGHT:
-Group 1 (parallel): [A] Update spawn-iterm2.sh
-Group 2 (after Group 1): [B] Extract common code (needs A's updated code)
-```
-
-**If you find a dependency within a parallel group, STOP and reorganize groups.**
-
-**Handle sequential-only scenarios:**
-
-If all tasks are sequential (no parallelization opportunity):
-
-"I've analyzed your tasks and found they must all run sequentially.
-
- Since there's no parallelization opportunity, you could run these
- tasks one at a time without Pasta Maker. However, I can still spawn
- them in separate tabs for convenience.
-
- Would you like to:
- 1. Run them sequentially in this tab (I'll help with each)
- 2. Spawn separate tabs anyway (for manual monitoring)
- 3. Modify the tasks to find parallelization opportunities"
-
-### Phase 3: Execution Plan Generation
-
-Create a detailed execution plan:
+**Examples of good inference (NO questions needed)**:
 
 ```
-EXECUTION PLAN
-==============
+User: "open claude to work on auth"
+→ Task 1: claude, current dir, prompt: "Work on auth"
+→ Spawn immediately
 
-Parallel Group 1 (X tabs - estimated time savings: Y minutes):
-  Tab 1: "[Descriptive Name]"
-    Command: [exact command to run]
-    Directory: [absolute path]
+User: "run tests"
+→ Task 1: npm test, current dir
+→ Spawn immediately
 
-  Tab 2: "[Descriptive Name]"
-    Command: [exact command to run]
-    Directory: [absolute path]
+User: "start dev server"
+→ Task 1: npm run dev, current dir
+→ Spawn immediately
 
-Sequential Group 2 (runs after Group 1 completes):
-  Tab 3: "[Descriptive Name]"
-    Command: [exact command to run]
-    Directory: [absolute path]
-    Wait for: [Task names from Group 1]
-
-Estimated total time: [estimate]
-  - Group 1: [time] (parallel)
-  - Group 2: [time] (sequential)
+User: "open claude sessions for auth and docs"
+→ Task 1: claude, current dir, prompt: "Work on auth"
+→ Task 2: claude, current dir, prompt: "Work on docs"
+→ Spawn both immediately
 ```
 
-**Before finalizing the plan, perform final validation:**
-
-1. **Race condition check:** Review EVERY parallel group one more time
-   - Look at each pair of tasks in the same group
-   - Verify no task depends on another task's output in that group
-   - If you find ANY dependency, reorganize into sequential groups
-
-2. **File conflict check:** Ensure no tasks in the same parallel group write to the same files
-
-3. **Logical dependency check:** Ask yourself: "If task X and Y run simultaneously, could there be a problem?"
-
-**If you find issues, FIX THEM before showing the plan to the user.**
-
-**Important notes:**
-- Use descriptive tab names (e.g., "Frontend Tests", "Update README")
-- Provide exact commands that can be copy-pasted
-- Use absolute paths for directories
-- For Claude tasks, prompts are automatically passed as the 4th parameter (no manual pasting needed)
-
-### Phase 4: User Approval
-
-Present the plan and ask for approval:
+**Examples requiring ONE clarifying question**:
 
 ```
-I've analyzed your tasks and created an execution plan that will parallelize
-X tasks initially, saving approximately Y minutes compared to sequential execution.
+User: "start frontend and backend servers"
+→ Ask: "What commands? (e.g., npm run dev:frontend, npm run dev:backend)"
+→ Then spawn immediately
 
-[Display the execution plan]
-
-Important notes:
-- Each task will run in a separate terminal tab
-- You'll need to manually start sequential groups after previous groups complete
-- Each tab will be named descriptively
-- Claude tasks will automatically receive their prompts (no manual pasting needed)
-
-Would you like to proceed with this plan? (yes/no)
-You can also ask me to modify the plan if needed.
+User: "run tests in my project directory"
+→ Ask: "What's the full path to your project directory?"
+→ Then spawn immediately
 ```
 
-**Wait for explicit approval** before proceeding. If the user wants changes, go back and adjust the plan.
+**After collecting tasks, do basic validation**:
+- At least one task collected
+- All commands are non-empty strings
+- All directories look like valid paths (if specified)
+- Tab names don't contain quotes, backslashes (sanitize if needed)
 
-### Phase 5: Terminal Detection & Spawning
+If validation fails, report the issue and ask user to clarify, then retry collection.
 
-Once approved, detect the terminal environment and spawn tabs:
+### Step 2: Spawn All Tabs Immediately
 
-**Step 1: Detect terminal**
+**Detect terminal**:
 
-Use the Bash tool to run the detection script:
-
-Execute: `"${CLAUDE_PLUGIN_ROOT}/scripts/detect-terminal.sh"`
-
-This will output one of: `iterm2`, `terminal`, `tmux`, or `unknown`
-Store this value to determine which spawn script to use.
-
-**Step 2: Pre-spawn validation**
-
-Before spawning any tabs, validate:
-1. Terminal type is supported (not "unknown")
-2. If macOS, check iTerm2/Terminal.app is running
-3. If tmux, verify we're in a session
-4. All directories exist (double-check)
-5. All spawn scripts are executable
-
-If any validation fails, report ALL issues and ask user to fix.
-Don't spawn partial groups.
-
-**Step 3: Inform user**
-
-Tell the user what terminal was detected and how many tasks will spawn:
-```
-Detected terminal: [the actual type from step 1]
-Spawning Group 1 ([N] tasks)...
+```bash
+"${CLAUDE_PLUGIN_ROOT}/scripts/detect-terminal.sh"
 ```
 
-**Step 4: Spawn each task in the first parallel group**
+This outputs one of: `iterm2`, `terminal`, `tmux`, `gnome-terminal`, `konsole`, `alacritty`, `kitty`, `warp`, `hyper`, `windows-terminal`, or `unknown`
 
-For each task in Group 1, you must:
+**Map terminal to spawn script**:
+- `iterm2` → `spawn-iterm2.sh`
+- `terminal` → `spawn-terminal-app.sh`
+- `tmux` → `spawn-tmux.sh`
+- `gnome-terminal` → `spawn-gnome-terminal.sh`
+- `konsole` → `spawn-konsole.sh`
+- `alacritty` → `spawn-alacritty.sh`
+- `kitty` → `spawn-kitty.sh`
+- `warp` → `spawn-warp.sh`
+- `hyper` → `spawn-hyper.sh`
+- `windows-terminal` → `spawn-windows-terminal.sh`
+- `unknown` → skip to manual instructions
 
-1. Determine the correct script name based on detected terminal:
-   - If terminal is `iterm2`: use `spawn-iterm2.sh`
-   - If terminal is `terminal`: use `spawn-terminal-app.sh`
-   - If terminal is `tmux`: use `spawn-tmux.sh`
-   - If terminal is `windows-terminal`: use `spawn-windows-terminal.sh`
-   - If terminal is `unknown`: skip to manual instructions
+**For each task, spawn immediately using Bash tool**:
 
-2. For each task, construct and run the spawn command with ACTUAL values:
+```bash
+"${CLAUDE_PLUGIN_ROOT}/scripts/spawn-[terminal-type].sh" "[tab_name]" "[command]" "[directory]" "[prompt_if_claude]"
+```
 
-**IMPORTANT - Tab name sanitization:**
-Before spawning, sanitize tab names to remove problematic characters:
+**IMPORTANT: Tab name sanitization**:
+Before spawning, sanitize tab names:
 - Remove or replace: quotes ("), backslashes (\), newlines
 - Replace forward slashes (/) with hyphens (-)
-- Keep the name descriptive but safe for terminal/AppleScript
+- Keep descriptive but safe for terminal/AppleScript
 
-**Example for iTerm2:**
-If you have a task named "Frontend Tests" that runs `npm test` in `/Users/me/project`, use the Bash tool to execute:
-
-`"${CLAUDE_PLUGIN_ROOT}/scripts/spawn-iterm2.sh" "Frontend Tests" "npm test" "/Users/me/project"`
-
-**Example with prompt (for Claude tasks):**
-If you have a Claude task with an initial prompt:
-
-`"${CLAUDE_PLUGIN_ROOT}/scripts/spawn-iterm2.sh" "Task Name" "claude" "/Users/me/project" "Your prompt here"`
-
-**Example for Terminal.app:**
-Use the Bash tool to execute:
-
-`"${CLAUDE_PLUGIN_ROOT}/scripts/spawn-terminal-app.sh" "Frontend Tests" "npm test" "/Users/me/project"`
-
-**Example for tmux:**
-Use the Bash tool to execute:
-
-`"${CLAUDE_PLUGIN_ROOT}/scripts/spawn-tmux.sh" "Frontend Tests" "npm test" "/Users/me/project"`
-
-**Example for Windows Terminal:**
-Use the Bash tool to execute:
-
-`"${CLAUDE_PLUGIN_ROOT}/scripts/spawn-windows-terminal.sh" "Frontend Tests" "npm test" "/Users/me/project"`
-
-**IMPORTANT:** Replace the values with actual task details:
-- First argument: The descriptive tab/window name (sanitized)
-- Second argument: The exact command to run
-- Third argument: The absolute path to the working directory
-- Fourth argument (optional): Initial prompt to pipe into the command (useful for Claude tasks)
-
-**Step 5: Report results with progress indicators**
-
-Track progress and report for each spawned tab:
-- `[1/N] ✓ Tab '[name]' created` on success
-- `[1/N] ✗ Tab '[name]' failed` on failure
-
-**For failures, offer retry mechanism:**
+**Show progress as you spawn**:
 ```
-[X/N] ✗ Failed to create tab '[name]'
+[1/N] ✓ Tab 'Tab Name 1' created
+[2/N] ✓ Tab 'Tab Name 2' created
+[3/N] ✓ Tab 'Tab Name 3' created
+```
+
+**Handle spawn failures**:
+
+If a spawn fails, show:
+```
+[X/N] ✗ Failed to create tab '[name]': [error reason]
+```
+
+After attempting all spawns, if some failed:
+```
+⚠ Some tabs failed to spawn. Successfully created: X of Y
+
+Failed tabs:
+- [Tab name]: [reason]
 
 Would you like to:
-1. Retry spawning (attempt again)
-2. Skip this task (continue with others)
-3. Manual mode (I'll give you instructions)
-4. Cancel (stop spawning remaining tasks)
+1. Retry failed tabs
+2. Show manual instructions for failed tabs
+3. Continue (succeeded tabs are already running)
 ```
 
-**For partial failures after spawning group:**
-```
-⚠ Some tasks failed to spawn. Successfully spawned: X of Y
-
-Failed tasks:
-- [Task name]: [reason]
-
-Would you like to:
-1. Continue with succeeded tasks
-2. Retry failed tasks
-3. Cancel entire workflow
-```
-
-**Handle unsupported terminals:**
-```
-Your terminal ([type]) is not directly supported for automatic tab spawning.
-
-To run these tasks in parallel, please manually:
-1. Open a new terminal tab (Cmd+T or equivalent)
-2. Run: cd "[directory]" && [command]
-
-Repeat for each task:
-- Task 1: [command]
-- Task 2: [command]
-...
-```
-
-### Phase 6: Coordination & Sequential Groups
-
-After spawning the first parallel group:
+**If terminal is unsupported (unknown)**:
 
 ```
-✓ All [N] tabs spawned successfully!
+Your terminal is not supported for automatic tab spawning.
 
-SUCCESS! I've created [N] terminal tabs for parallel execution:
-✓ Tab "[name]" - [brief description]
-✓ Tab "[name]" - [brief description]
+To run these tasks manually, open new tabs and run:
 
-Next Steps:
-1. Switch to each spawned tab to monitor progress:
-   - Tab "[name]": Watch for [what to look for]
-   - Tab "[name]": Watch for [what to look for]
+Task 1: [Tab name]
+  cd "[directory]"
+  [command]
 
-2. Return to THIS tab when tasks complete
+Task 2: [Tab name]
+  cd "[directory]"
+  [command]
 
-3. If any task FAILS:
-   - Note which task failed and the error
-   - Come back to this tab
-   - Tell me: "Task X failed with error: Y"
-   - I'll help you decide whether to continue or fix the issue
-
-4. If all tasks SUCCEED:
-   - Come back to this tab
-   - Tell me: "All Group 1 tasks completed successfully"
-   - I'll spawn the next sequential group
-
-I'll stay in this tab to help coordinate or answer questions!
+Supported terminals: iTerm2, Terminal.app, tmux, GNOME Terminal, Konsole, Alacritty, Kitty, Warp, Hyper, Windows Terminal
 ```
 
-**When user returns:**
+### Step 3: Success Message
 
-If user says "done" or similar (e.g., "finished", "complete", "all done"):
-- Assume all tasks succeeded
-- Immediately proceed to spawn the next sequential group
-- Do NOT ask for details or confirmation
-
-If user reports specific failures or issues:
-- Ask which task failed and whether it was critical
-- Provide decision tree for handling failures
-
-Based on specific failure reports:
-- If some failed but not critical: Ask if they want to continue
-- If critical tasks failed: Recommend fixing before continuing
-- If unsure: Ask user what they want to do
-
-**Handling failures with decision tree:**
-
-If user reports a task failure, ask: "Which task failed and was it critical?"
+After all tabs spawn successfully:
 
 ```
-If critical (e.g., tests failed before build):
-"Tests failed, so the build would likely fail too.
+✓ Created N tab(s):
+  - Tab '[name]' - [brief description]
+  - Tab '[name]' - [brief description]
 
- I recommend:
- 1. Fix the test failures first
- 2. Then re-run just the build task
-
- Or we can continue anyway (not recommended)."
-
-If non-critical:
-"That task failed but isn't blocking the next group.
- We can proceed if you'd like."
+Your sessions are ready! Switch to the tabs to use them.
 ```
 
-**For sequential groups:**
-```
-Great! All Group 1 tasks completed successfully.
-
-Now spawning Group 2...
-[Repeat spawning process with progress indicators]
-```
-
-**Tab recovery instructions:**
-
-If user accidentally closes a tab before completion:
-```
-If you accidentally closed a tab before it completes:
-
-1. Open a new terminal tab manually
-2. Run:
-   cd "[directory]"
-   [command]
-3. When done, return here and let me know
-```
+Keep it brief. No coordination needed - user manages tabs independently.
 
 ## Special Cases
 
 ### Claude Code Instances
 
-When a task needs Claude Code (not just a shell command), pass the prompt as the 4th argument:
+When spawning Claude, pass the prompt as the 4th argument:
 
 ```bash
-"${CLAUDE_PLUGIN_ROOT}/scripts/spawn-iterm2.sh" "Task Name" "claude" "/path/to/dir" "Your full prompt here"
+"${CLAUDE_PLUGIN_ROOT}/scripts/spawn-[terminal].sh" "Work on Auth" "claude" "/path/to/dir" "Help me refactor the authentication module"
 ```
 
-This will automatically pipe the prompt into Claude, so the user doesn't need to manually paste anything.
+The spawn script automatically pipes the prompt to Claude via stdin.
 
-**In your execution plan, show:**
-```
-Tab X: "[Task Name]"
-  Command: claude
-  Prompt: [Brief description of what the prompt asks Claude to do]
-  Directory: [path]
-```
+### Commands with Complex Arguments
 
-### Interactive Tasks
+For commands with quotes, pipes, or special characters:
 
-For tasks requiring user input:
-
-```
-Tab X: "[Interactive Task]"
-  Note: This task requires user input - you'll need to interact with it
-  Command: [command]
+```bash
+"${CLAUDE_PLUGIN_ROOT}/scripts/spawn-[terminal].sh" "Complex Task" "npm test && npm run lint" "/path/to/dir"
 ```
 
-### Failed Spawns
+The spawn script handles proper quoting and escaping.
 
-If a spawn script fails:
+### Interactive Commands
+
+Commands that need user input work fine - they'll prompt in their own tab:
+
+```bash
+"${CLAUDE_PLUGIN_ROOT}/scripts/spawn-[terminal].sh" "Deploy" "npm run deploy" "/path/to/dir"
+```
+
+### Long Commands
+
+If a command is >500 characters, warn the user:
 
 ```
-✗ Failed to create tab '[name]'
+⚠ Warning: Command for '[tab name]' is very long (N chars).
+AppleScript has a ~500 character limit. This might fail on some terminals.
 
-Please manually:
-1. Open a new terminal tab
-2. Run: cd "[directory]"
-3. Run: [command]
+Recommendation: Use a shell script instead:
+1. Create deploy.sh with your command
+2. Spawn: ./deploy.sh
 ```
+
+Then attempt to spawn anyway - it might work on some terminals.
 
 ## Error Handling
 
-Use this standardized error message format across all errors:
-```
-[SEVERITY] Context: Problem. Solution.
-```
-
-### AppleScript Permission Denied
+### AppleScript Permission Denied (macOS)
 
 ```
-[ERROR] iTerm2/Terminal Spawn: AppleScript permission denied.
+[ERROR] Failed to spawn tabs: AppleScript permission denied
 
-This means automation permissions are not granted.
-
-To fix this:
+Fix:
 1. Open System Preferences → Security & Privacy → Privacy → Automation
 2. Enable permissions for Terminal.app or iTerm2
 3. Restart your terminal application
-4. Try running /pasta-maker:run again
-
-Common causes:
-- iTerm2/Terminal.app is not running
-- Automation permissions not granted
-- Terminal version incompatible
+4. Try again
 ```
 
 ### Accessibility Permission Denied (Terminal.app)
 
 ```
-[ERROR] Terminal.app Spawn: Accessibility permissions required.
+[ERROR] Failed to spawn tabs: Accessibility permissions required
 
-Terminal.app spawning uses System Events which requires accessibility permissions.
-
-To fix this:
+Fix:
 1. Open System Preferences → Security & Privacy → Privacy → Accessibility
 2. Enable permissions for Terminal.app
 3. Restart your terminal application
-4. Try running /pasta-maker:run again
+4. Try again
 ```
 
 ### Script Not Found
 
 ```
-[ERROR] Plugin Installation: Spawn script not found.
+[ERROR] Spawn script not found
 
-This may mean the plugin wasn't installed correctly.
+The plugin may not be installed correctly.
 
-To fix this:
+Fix:
 1. Verify ${CLAUDE_PLUGIN_ROOT}/scripts/ contains spawn scripts
-2. Check that scripts are executable: ls -la "${CLAUDE_PLUGIN_ROOT}/scripts/"
-3. If not executable, run: chmod +x "${CLAUDE_PLUGIN_ROOT}/scripts/"*.sh
-4. Try running /pasta-maker:run again
+2. Run: ls -la "${CLAUDE_PLUGIN_ROOT}/scripts/"
+3. If scripts are missing, reinstall the plugin
+4. If scripts exist but aren't executable: chmod +x "${CLAUDE_PLUGIN_ROOT}/scripts/"*.sh
 ```
 
 ### Invalid Directory
 
 ```
-[ERROR] Validation: Directory '[path]' does not exist.
+[ERROR] Directory '[path]' does not exist
 
-The specified working directory was not found.
-
-To fix this:
-1. Verify the path is correct and absolute (not relative)
-2. Check that the directory exists: ls -la "[path]"
-3. Create the directory if needed: mkdir -p "[path]"
+Fix:
+1. Verify the path is correct and absolute
+2. Check it exists: ls -la "[path]"
+3. Create it if needed: mkdir -p "[path]"
 4. Provide the correct path
 ```
 
-### Scripts Not Executable
+### Terminal Not Running (macOS)
 
 ```
-[ERROR] Plugin Setup: Spawn scripts are not executable.
+[ERROR] iTerm2/Terminal.app is not running
 
-The spawn scripts don't have execute permissions.
-
-To fix this:
-Run: chmod +x "${CLAUDE_PLUGIN_ROOT}/scripts/"*.sh
-
-Then try running /pasta-maker:run again.
+Fix:
+1. Open iTerm2 or Terminal.app
+2. Run /pasta-maker:run again from within that terminal
 ```
 
-## Tips for Users
-
-**Best practices:**
-- Provide complete task information upfront to skip questions entirely (e.g., "Run npm test, npm run build in /path/to/project")
-- Mention dependencies explicitly (e.g., "build after tests complete")
-- Working directory defaults to current directory if not specified
-- Standard npm/shell commands are recognized automatically
-- For Claude tasks, prompts are automatically submitted
-
-**Common patterns:**
-- **Test suites:** Frontend + Backend tests (parallel) → Build
-- **Development:** Dev server + Test watcher + Docs server (all parallel)
-- **CI/CD:** Lint + Test (parallel) → Build → Deploy (sequential)
-- **Data processing:** Process datasets (parallel) → Merge → Report (sequential)
-
-## Example Complete Session
+### Not in tmux Session
 
 ```
-User: /pasta-maker:run
+[ERROR] Not in a tmux session
 
-You: What tasks would you like to accomplish? Please describe them, and I'll help determine which can run in parallel.
+Fix:
+1. Start tmux: tmux new-session -s pasta
+2. Run /pasta-maker:run again from within tmux
+```
 
-User: I need to run frontend tests, backend tests, and then build the project
+## Complete Examples
 
-You: Perfect! I'll set up:
-- Frontend tests: npm run test:frontend
-- Backend tests: npm run test:backend
-- Build: npm run build (after tests complete)
+### Example 1: Single Claude Session
 
-All running from /Users/me/project. Is that correct?
+```
+User: /pasta-maker:run open claude to refactor the auth module
 
-User: Yes
+You: I'll spawn a Claude session to help with auth refactoring.
 
-You: Great! Let me analyze the dependencies...
+[Run: "${CLAUDE_PLUGIN_ROOT}/scripts/detect-terminal.sh"]
+[Output: iterm2]
 
-[Analyzes dependencies using the methodology]
+[Run: "${CLAUDE_PLUGIN_ROOT}/scripts/spawn-iterm2.sh" "Refactor Auth Module" "claude" "/Users/me/project" "Help me refactor the authentication module"]
 
-EXECUTION PLAN
-==============
+[1/1] ✓ Tab 'Refactor Auth Module' created
 
-Parallel Group 1 (2 tabs - saves ~8 minutes):
-  Tab 1: "Frontend Tests"
-    Command: npm run test:frontend
-    Directory: /Users/me/project
+✓ Created 1 tab:
+  - Tab 'Refactor Auth Module' - Claude session for auth refactoring
 
-  Tab 2: "Backend Tests"
-    Command: npm run test:backend
-    Directory: /Users/me/project
+Your session is ready!
+```
 
-Sequential Group 2 (after Group 1):
-  Tab 3: "Build Project"
-    Command: npm run build
-    Directory: /Users/me/project
-    Wait for: Frontend Tests, Backend Tests
+### Example 2: Multiple Commands
 
-Estimated total time: 15 minutes
-  - Group 1: ~10 min (parallel)
-  - Group 2: ~5 min
+```
+User: /pasta-maker:run start frontend, backend, and test watcher
 
-Would you like to proceed with this plan?
+You: What commands should I run for each?
 
-User: yes
+User: npm run dev:frontend, npm run dev:backend, npm test:watch
 
-You: [First run: "${CLAUDE_PLUGIN_ROOT}/scripts/detect-terminal.sh" to detect terminal]
-Detected terminal: iterm2
-Spawning Group 1 (2 tasks)...
+You: I'll spawn 3 tabs for your development workflow.
 
-[Now run: "${CLAUDE_PLUGIN_ROOT}/scripts/spawn-iterm2.sh" "Frontend Tests" "npm run test:frontend" "/Users/me/project"]
-[1/2] ✓ Tab 'Frontend Tests' created
+[Run: "${CLAUDE_PLUGIN_ROOT}/scripts/detect-terminal.sh"]
+[Output: iterm2]
 
-[Now run: "${CLAUDE_PLUGIN_ROOT}/scripts/spawn-iterm2.sh" "Backend Tests" "npm run test:backend" "/Users/me/project"]
-[2/2] ✓ Tab 'Backend Tests' created
+[Run: "${CLAUDE_PLUGIN_ROOT}/scripts/spawn-iterm2.sh" "Frontend" "npm run dev:frontend" "/Users/me/project"]
+[1/3] ✓ Tab 'Frontend' created
 
-✓ All 2 tabs spawned successfully!
+[Run: "${CLAUDE_PLUGIN_ROOT}/scripts/spawn-iterm2.sh" "Backend" "npm run dev:backend" "/Users/me/project"]
+[2/3] ✓ Tab 'Backend' created
 
-SUCCESS! I've created 2 terminal tabs for parallel execution:
-✓ Tab "Frontend Tests" - Running npm run test:frontend
-✓ Tab "Backend Tests" - Running npm run test:backend
+[Run: "${CLAUDE_PLUGIN_ROOT}/scripts/spawn-iterm2.sh" "Test Watcher" "npm test:watch" "/Users/me/project"]
+[3/3] ✓ Tab 'Test Watcher' created
 
-Next Steps:
-1. Switch to each spawned tab to monitor progress:
-   - Tab "Frontend Tests": Watch for test results and exit code
-   - Tab "Backend Tests": Watch for test results and exit code
+✓ Created 3 tabs:
+  - Tab 'Frontend' - npm run dev:frontend
+  - Tab 'Backend' - npm run dev:backend
+  - Tab 'Test Watcher' - npm test:watch
 
-2. Return to THIS tab when tasks complete
+Your sessions are ready!
+```
 
-3. If any task FAILS:
-   - Note which task failed and the error
-   - Come back to this tab
-   - Tell me: "Task X failed with error: Y"
-   - I'll help you decide whether to continue or fix the issue
+### Example 3: Multiple Claude Sessions
 
-4. If all tasks SUCCEED:
-   - Come back to this tab
-   - Tell me: "All Group 1 tasks completed successfully"
-   - I'll spawn the next sequential group
+```
+User: /pasta-maker:run open claude for auth work and another for updating docs
 
-I'll stay in this tab to help coordinate or answer questions!
+You: I'll spawn 2 Claude sessions.
 
-[User monitors tabs, returns when done]
+[Run: "${CLAUDE_PLUGIN_ROOT}/scripts/detect-terminal.sh"]
+[Output: terminal]
 
-User: done
+[Run: "${CLAUDE_PLUGIN_ROOT}/scripts/spawn-terminal-app.sh" "Auth Work" "claude" "/Users/me/project" "Help me work on the authentication system"]
+[1/2] ✓ Tab 'Auth Work' created
 
-You: Now spawning Group 2 (1 task)...
+[Run: "${CLAUDE_PLUGIN_ROOT}/scripts/spawn-terminal-app.sh" "Update Docs" "claude" "/Users/me/project" "Help me update the documentation"]
+[2/2] ✓ Tab 'Update Docs' created
 
-[Run: "${CLAUDE_PLUGIN_ROOT}/scripts/spawn-iterm2.sh" "Build Project" "npm run build" "/Users/me/project"]
-[1/1] ✓ Tab 'Build Project' created
+✓ Created 2 tabs:
+  - Tab 'Auth Work' - Claude session for auth
+  - Tab 'Update Docs' - Claude session for docs
 
-✓ All 1 tab spawned successfully!
-
-SUCCESS! The build task is now running:
-✓ Tab "Build Project" - Running npm run build
-
-Next Steps:
-1. Switch to the "Build Project" tab to monitor progress
-2. Watch for build completion and any errors
-3. Return here when complete
-
-Let me know if you need any other help!
+Your sessions are ready!
 ```
 
 ## Remember
 
-- Always get user approval before spawning
-- Provide clear, actionable error messages
-- Stay in the original tab to coordinate
-- Help debug if tasks fail
-- Make the experience smooth and professional
+- **Infer aggressively** - Don't ask questions you can reasonably answer
+- **Spawn immediately** - No approvals, no plans, no waiting
+- **All tasks in parallel** - Spawn everything at once
+- **Brief success message** - Confirm what was created, then done
+- **No coordination** - User manages tabs independently
+- **Trust the user** - They invoked the command, they want tabs spawned

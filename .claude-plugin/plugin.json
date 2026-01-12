@@ -1,8 +1,8 @@
 {
-  "name": "pasta-maker",
+  "name": "tribble",
   "version": "1.0.0",
-  "description": "Intelligently parallelize tasks across terminal tabs by analyzing dependencies and spawning separate Claude Code instances",
+  "description": "Quickly spawn Claude Code sessions or commands in new terminal tabs",
   "author": {
-    "name": "Pasta Maker Team"
+    "name": "Darian Bailey"
   }
 }
