@@ -1,4 +1,4 @@
-# Tribble
+# 🐹 Tribble
 
 Quickly spawn Claude Code sessions or commands in new terminal tabs.
 
