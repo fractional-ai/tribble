@@ -87,7 +87,12 @@ print_manual_instructions() {
     echo "  cd \"$directory\"" >&2
 
     if [ -n "$prompt" ]; then
-        echo "  echo \"$prompt\" | $command" >&2
+        # Save prompt to temp file for complex commands
+        echo "  echo '$prompt' | $command" >&2
+        echo "" >&2
+        echo "  Or save prompt to file first if command is complex:" >&2
+        echo "  echo '$prompt' > /tmp/prompt.txt" >&2
+        echo "  $command < /tmp/prompt.txt && rm /tmp/prompt.txt" >&2
     else
         echo "  $command" >&2
     fi
@@ -99,6 +104,8 @@ print_manual_instructions() {
 #   $2 - command
 # Outputs:
 #   Full command with prompt piping
+# Note: Uses stdin redirection (<) which correctly applies to the last
+#       command in a chain, unlike pipe (|) which only applies to the first
 prepare_command_with_prompt() {
     local prompt="$1"
     local command="$2"
@@ -106,7 +113,9 @@ prepare_command_with_prompt() {
     if [ -n "$prompt" ]; then
         local prompt_file=$(mktemp)
         echo "$prompt" > "$prompt_file"
-        echo "cat \"$prompt_file\" | $command && rm \"$prompt_file\""
+        # Use stdin redirection - works correctly with command chains
+        # Example: cmd1 && cmd2 && cmd3 < file  (< applies only to cmd3)
+        echo "$command < \"$prompt_file\" && rm \"$prompt_file\""
     else
         echo "$command"
     fi
