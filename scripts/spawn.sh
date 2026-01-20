@@ -1,12 +1,13 @@
 #!/usr/bin/env bash
 # Unified spawn script - detects terminal and spawns tab in one call
-# Usage: spawn.sh <tab_name> <command> <directory> [prompt]
+# Usage: spawn.sh <tab_name> <command> <directory> [prompt] [color]
 #
 # Arguments:
 #   tab_name   - Descriptive name for the tab
 #   command    - Command to execute in the tab
 #   directory  - Working directory (absolute path)
 #   prompt     - Optional: Initial prompt/input to pipe into the command
+#   color      - Optional: Tab color (auto-assigned if not specified)
 #
 # Exit codes:
 #   0 - Success
@@ -26,12 +27,65 @@ TAB_NAME="$1"
 COMMAND="$2"
 DIRECTORY="${3:-$PWD}"
 PROMPT="${4:-}"
+TAB_COLOR="${5:-}"
 
 # Validate arguments using shared function
 validate_arguments "$TAB_NAME" "$COMMAND" || exit $?
 
 # Validate directory using shared function
 validate_directory "$DIRECTORY" || exit $?
+
+# ============================================================================
+# COLOR PALETTE & ASSIGNMENT
+# ============================================================================
+
+# Predefined color palette (RGB values 0-65535 for iTerm2)
+# Colors are chosen to be visually distinct and pleasant
+declare -a COLOR_PALETTE=(
+    "50000,20000,20000"   # Red
+    "20000,50000,20000"   # Green
+    "20000,20000,50000"   # Blue
+    "50000,40000,0"       # Orange
+    "40000,0,50000"       # Purple
+    "0,45000,50000"       # Cyan
+    "50000,20000,40000"   # Pink
+    "30000,50000,0"       # Lime
+    "0,30000,50000"       # Teal
+    "50000,30000,0"       # Amber
+)
+
+# State file for tracking current color index
+COLOR_STATE_FILE="${TMPDIR:-/tmp}/tribble_color_index"
+
+# Get next color in sequential order (loops through palette)
+get_next_color() {
+    local current_index=0
+
+    # Read current index from state file if it exists
+    if [ -f "$COLOR_STATE_FILE" ]; then
+        current_index=$(cat "$COLOR_STATE_FILE" 2>/dev/null || echo "0")
+        # Validate it's a number
+        if ! [[ "$current_index" =~ ^[0-9]+$ ]]; then
+            current_index=0
+        fi
+    fi
+
+    # Get the color at current index
+    local color="${COLOR_PALETTE[$current_index]}"
+
+    # Increment index for next call (loop back to 0 at end)
+    local next_index=$(( (current_index + 1) % ${#COLOR_PALETTE[@]} ))
+
+    # Save next index to state file
+    echo "$next_index" > "$COLOR_STATE_FILE"
+
+    echo "$color"
+}
+
+# Assign color if not provided
+if [ -z "$TAB_COLOR" ]; then
+    TAB_COLOR=$(get_next_color)
+fi
 
 # ============================================================================
 # TERMINAL DETECTION
@@ -154,11 +208,17 @@ case "$TERMINAL_TYPE" in
 # iTerm2
 # ----------------------------------------------------------------------------
 iterm2)
-    ERROR_OUTPUT=$(osascript - "$FULL_COMMAND" "$DIRECTORY" "$TAB_NAME" 2>&1 <<'APPLESCRIPT'
+    # Parse color values (format: "r,g,b")
+    IFS=',' read -r RED GREEN BLUE <<< "$TAB_COLOR"
+
+    ERROR_OUTPUT=$(osascript - "$FULL_COMMAND" "$DIRECTORY" "$TAB_NAME" "$RED" "$GREEN" "$BLUE" 2>&1 <<'APPLESCRIPT'
 on run argv
     set theCommand to item 1 of argv
     set theDir to item 2 of argv
     set theName to item 3 of argv
+    set tabRed to item 4 of argv as number
+    set tabGreen to item 5 of argv as number
+    set tabBlue to item 6 of argv as number
 
     tell application "iTerm2"
         # Check if window exists, create if not
@@ -180,6 +240,12 @@ on run argv
 
             tell current session
                 set name to theName
+
+                # Set tab color
+                tell current tab
+                    set color to {tabRed, tabGreen, tabBlue}
+                end tell
+
                 write text "cd \"" & theDir & "\""
                 write text theCommand
             end tell
@@ -216,6 +282,9 @@ terminal)
     COMMAND_ESCAPED=$(echo "$FULL_COMMAND" | sed -e 's/\\/\\\\/g' -e 's/"/\\"/g')
     TAB_NAME_ESCAPED=$(echo "$TAB_NAME" | sed -e 's/\\/\\\\/g' -e 's/"/\\"/g')
 
+    # Create a colored indicator using the first letter of the tab name
+    TAB_INITIAL="${TAB_NAME:0:1}"
+
     osascript <<EOF
 -- Check accessibility permissions
 tell application "System Events"
@@ -244,7 +313,10 @@ tell application "Terminal"
     -- Target specific tab instead of assuming front window
     tell tab (count of tabs of front window) of front window
         do script "cd \"$DIRECTORY\""
+        -- Set window title
         do script "printf '\\033]0;$TAB_NAME_ESCAPED\\007'"
+        -- Set badge with tab initial (Terminal.app only shows this in some versions)
+        do script "printf '\\033]1337;SetBadgeFormat=%s\\007' \$(echo -n '$TAB_INITIAL' | base64)"
         do script "$COMMAND_ESCAPED"
     end tell
 end tell
@@ -294,11 +366,24 @@ tmux)
         echo "Creating anyway (will have duplicate name)..." >&2
     fi
 
+    # Convert RGB from iTerm format (0-65535) to color256 for tmux
+    IFS=',' read -r RED GREEN BLUE <<< "$TAB_COLOR"
+    # Convert to 0-255 range
+    RED_255=$((RED * 255 / 65535))
+    GREEN_255=$((GREEN * 255 / 65535))
+    BLUE_255=$((BLUE * 255 / 65535))
+    # Format as RGB for tmux (requires tmux 2.9+)
+    TMUX_COLOR="colour${RED_255},${GREEN_255},${BLUE_255}"
+
     # Create new window with name and directory
     tmux new-window -t "$SESSION_NAME" -n "$TAB_NAME" -c "$DIRECTORY"
 
     # Give tmux time to process window creation
     sleep 0.1
+
+    # Set window pane border color to distinguish it
+    tmux set-window-option -t "$SESSION_NAME:$TAB_NAME" pane-border-style "fg=#$(printf "%02x%02x%02x" $RED_255 $GREEN_255 $BLUE_255)" 2>/dev/null || true
+    tmux set-window-option -t "$SESSION_NAME:$TAB_NAME" pane-active-border-style "fg=#$(printf "%02x%02x%02x" $RED_255 $GREEN_255 $BLUE_255)" 2>/dev/null || true
 
     # Send the command to the new window
     # C-m sends a carriage return (Enter key)
@@ -376,8 +461,16 @@ kitty)
         KITTY_FULL_COMMAND="echo ${PROMPT_ESCAPED} | (cd '${DIRECTORY}' && ${COMMAND}); exec bash"
     fi
 
+    # Convert RGB from iTerm format (0-65535) to hex format for Kitty
+    IFS=',' read -r RED GREEN BLUE <<< "$TAB_COLOR"
+    # Convert to 0-255 range and then to hex
+    RED_HEX=$(printf "%02x" $((RED * 255 / 65535)))
+    GREEN_HEX=$(printf "%02x" $((GREEN * 255 / 65535)))
+    BLUE_HEX=$(printf "%02x" $((BLUE * 255 / 65535)))
+    KITTY_COLOR="#${RED_HEX}${GREEN_HEX}${BLUE_HEX}"
+
     if command -v kitty &>/dev/null; then
-        if kitty @ launch --type=tab --tab-title "$TAB_NAME" --cwd "$DIRECTORY" bash -c "$KITTY_FULL_COMMAND" 2>/dev/null; then
+        if kitty @ launch --type=tab --tab-title "$TAB_NAME" --tab-color "$KITTY_COLOR" --cwd "$DIRECTORY" bash -c "$KITTY_FULL_COMMAND" 2>/dev/null; then
             echo "✓ Created tab '$TAB_NAME' in Kitty"
             exit 0
         else

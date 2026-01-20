@@ -188,64 +188,93 @@ User: "start frontend and backend, then run tests"
 
 ### Step 1.8: Worktree Session Prompts (Special Case)
 
-**When users request worktree creation, spawn Claude with instructions to create the worktree using a skill**.
-
-Worktree setup happens INSIDE the spawned Claude session, not in the current window.
+**⚠️  CRITICAL: Worktrees require a two-step process to work correctly.**
 
 **Detection**: A task needs worktree setup if:
 - User explicitly mentions "worktree", "git worktree", or "new worktree"
 - User wants to work on a different branch in a new worktree
 - Task involves creating a separate git working directory
 
-**Worktree Spawn Process**:
+**CORRECT Worktree Workflow (Two-Step Process)**:
 
-1. **Detect worktree request** from user input
-2. **Extract branch/feature name** from request
-3. **Spawn Claude session** with prompt instructing it to create the worktree
-4. **Claude in new tab** creates worktree and begins work
+**Step 1: Tell user to create worktree in CURRENT session first**
 
-**Enhanced prompt format for worktree sessions**:
+When a worktree request is detected, respond with:
 
 ```
-Create a new git worktree for [branch-name] and work on [task].
+⚠️  To work in a worktree, we need to create it first, then spawn a new session there.
 
-Steps:
-1. Create worktree: git worktree add ../[branch-name] -b [branch-name]
-2. The worktree will be at ../[branch-name]
-3. After creation, begin work on [task description]
+Let me guide you through the two-step process:
 
-Context: [any relevant context from current session]
+Step 1 (in THIS session): Create the worktree
+  Run: scripts/new-worktree.sh [branch-name]
+
+Step 2 (after creation): Come back and I'll spawn a Claude session in the worktree
+
+Ready to start? What should I name the branch?
 ```
+
+**Step 2: After user confirms worktree is created, spawn in that directory**
+
+Once worktree exists at `../<branch-name>`, spawn with:
+- Working directory: `../<branch-name>`
+- Command: `claude`
+- Prompt: Context about the task
 
 **Example workflow**:
 
 ```
 User: /tribble:run open claude to work on feature-xyz in a new worktree
 
-You: I'll spawn a Claude session to create the worktree and work on feature-xyz.
+You: ⚠️  To work in a worktree, we need to create it first.
 
-[Spawn with enhanced prompt that includes worktree creation instructions]
+Step 1: Create the worktree in THIS session
+  Run: scripts/new-worktree.sh feature-xyz
 
-[1/1] ✓ Tab 'Feature XYZ Worktree' created
+Step 2: After it's created, I'll spawn a Claude session in ../feature-xyz
+
+Let's start - I'll create the worktree now.
+
+[Run: bash scripts/new-worktree.sh feature-xyz]
+
+✅ Worktree created at ../feature-xyz
+
+Now spawning Claude session in the worktree...
+
+[Spawn with directory: "../feature-xyz", command: "claude", prompt: "Work on feature-xyz: [task description]"]
+
+[1/1] ✓ Tab 'Feature XYZ' created in ../feature-xyz
 
 ✓ Created 1 tab:
-  - Tab 'Feature XYZ Worktree' - Claude will create worktree and work on feature
+  - Tab 'Feature XYZ' - Claude session in worktree ../feature-xyz
 
-The Claude session will create the worktree at ../feature-xyz and begin work.
+The session is running in the worktree and will work on the feature branch.
 ```
 
-**Key points**:
-- Spawn Claude session immediately (no pre-work in current window)
-- Include worktree creation steps in Claude's initial prompt
-- Claude in the new tab handles worktree creation and any errors
-- Working directory starts at current project (worktree created relative to it)
+**Why this two-step process?**
+- Spawned sessions inherit the working directory from the spawn command
+- If you spawn from staging, the session starts in staging
+- Creating worktree FIRST, then spawning IN that directory ensures safety
+- The spawned session will verify it's on a feature branch before making changes
+
+**Alternative: User creates worktree manually**
+
+If the user prefers to create the worktree themselves:
+
+```
+User: I've created ../feature-xyz, spawn claude there
+
+You: I'll spawn a Claude session in ../feature-xyz
+
+[Spawn with directory: "../feature-xyz"]
+```
 
 **Common worktree patterns**:
 
 ```
-"work on auth in new worktree" → spawn Claude with worktree instructions
-"create worktree for feature-x" → spawn Claude with worktree instructions
-"new branch in separate worktree" → spawn Claude with worktree instructions
+"work on auth in new worktree" → Create ../auth worktree, then spawn there
+"create worktree for feature-x" → Create ../feature-x worktree, then spawn there
+"new branch in separate worktree" → Create ../branch worktree, then spawn there
 ```
 
 #### PARALLEL MODE (1 group only)
