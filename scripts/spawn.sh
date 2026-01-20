@@ -211,7 +211,12 @@ iterm2)
     # Parse color values (format: "r,g,b")
     IFS=',' read -r RED GREEN BLUE <<< "$TAB_COLOR"
 
-    ERROR_OUTPUT=$(osascript - "$FULL_COMMAND" "$DIRECTORY" "$TAB_NAME" "$RED" "$GREEN" "$BLUE" 2>&1 <<'APPLESCRIPT'
+    # Convert RGB from 0-65535 to 0-255 for escape sequences
+    RED_255=$((RED * 255 / 65535))
+    GREEN_255=$((GREEN * 255 / 65535))
+    BLUE_255=$((BLUE * 255 / 65535))
+
+    ERROR_OUTPUT=$(osascript - "$FULL_COMMAND" "$DIRECTORY" "$TAB_NAME" "$RED_255" "$GREEN_255" "$BLUE_255" 2>&1 <<'APPLESCRIPT'
 on run argv
     set theCommand to item 1 of argv
     set theDir to item 2 of argv
@@ -230,7 +235,7 @@ on run argv
             # Store tab count before creating new tab
             set tabCount to count of tabs
 
-            create tab with default profile
+            set newTab to (create tab with default profile)
             delay 0.2
 
             # Verify new tab was created
@@ -238,14 +243,16 @@ on run argv
                 error "Failed to create tab"
             end if
 
-            tell current session
+            tell current session of newTab
+                # Set session name and title (both for better persistence)
                 set name to theName
-
-                # Set tab color
-                tell current tab
-                    set color to {tabRed, tabGreen, tabBlue}
-                end tell
-
+                # Set tab color using iTerm2 proprietary escape sequences (silent)
+                write text "printf '\\e]6;1;bg;red;brightness;" & tabRed & "\\a' > /dev/null"
+                write text "printf '\\e]6;1;bg;green;brightness;" & tabGreen & "\\a' > /dev/null"
+                write text "printf '\\e]6;1;bg;blue;brightness;" & tabBlue & "\\a' > /dev/null"
+                # Set title using escape sequence (persists across commands)
+                write text "printf '\\e]0;" & theName & "\\a' > /dev/null"
+                write text "clear"
                 write text "cd \"" & theDir & "\""
                 write text theCommand
             end tell
