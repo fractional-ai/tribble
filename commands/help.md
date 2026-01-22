@@ -42,6 +42,7 @@ Like tribbles, your sessions multiply rapidly.
 ### macOS
 - ✅ **iTerm2** - Native AppleScript support
 - ✅ **Terminal.app** - Native AppleScript support
+- ✅ **Ghostty** - Native AppleScript support
 - ✅ **tmux** - Native tmux commands
 - ✅ **Alacritty** - Via `msg create-window`
 - ✅ **Kitty** - Via remote control API (requires config)

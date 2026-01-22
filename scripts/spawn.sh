@@ -105,11 +105,18 @@ detect_terminal() {
         echo "DEBUG: VTE_VERSION=$VTE_VERSION" >&2
         echo "DEBUG: KONSOLE_VERSION=$KONSOLE_VERSION" >&2
         echo "DEBUG: KONSOLE_DBUS_SERVICE=$KONSOLE_DBUS_SERVICE" >&2
+        echo "DEBUG: GHOSTTY_RESOURCES_DIR=$GHOSTTY_RESOURCES_DIR" >&2
     fi
 
     # Check for tmux first (can be inside other terminals)
     if [ -n "$TMUX" ]; then
         echo "tmux"
+        return 0
+    fi
+
+    # Check for Ghostty
+    if [ -n "$GHOSTTY_RESOURCES_DIR" ]; then
+        echo "ghostty"
         return 0
     fi
 
@@ -246,12 +253,12 @@ on run argv
             tell current session of newTab
                 # Set session name and title (both for better persistence)
                 set name to theName
-                # Set tab color using iTerm2 proprietary escape sequences (silent)
-                write text "printf '\\e]6;1;bg;red;brightness;" & tabRed & "\\a' > /dev/null"
-                write text "printf '\\e]6;1;bg;green;brightness;" & tabGreen & "\\a' > /dev/null"
-                write text "printf '\\e]6;1;bg;blue;brightness;" & tabBlue & "\\a' > /dev/null"
+                # Set tab color using iTerm2 proprietary escape sequences
+                write text "printf '\\e]6;1;bg;red;brightness;" & tabRed & "\\a'"
+                write text "printf '\\e]6;1;bg;green;brightness;" & tabGreen & "\\a'"
+                write text "printf '\\e]6;1;bg;blue;brightness;" & tabBlue & "\\a'"
                 # Set title using escape sequence (persists across commands)
-                write text "printf '\\e]0;" & theName & "\\a' > /dev/null"
+                write text "printf '\\e]0;" & theName & "\\a'"
                 write text "clear"
                 write text "cd \"" & theDir & "\""
                 write text theCommand
@@ -589,7 +596,7 @@ vscode)
     echo "  3. Tribble will create tmux windows (Ctrl+B W to navigate)" >&2
     echo "" >&2
     echo "Option 2: Use an external terminal" >&2
-    echo "  - Run Claude Code in iTerm2, Terminal.app, or GNOME Terminal" >&2
+    echo "  - Run Claude Code in iTerm2, Terminal.app, Ghostty, or GNOME Terminal" >&2
     echo "  - Tribble will work seamlessly with native terminal tabs" >&2
     echo "" >&2
     echo "Option 3: Manual execution" >&2
@@ -617,10 +624,65 @@ windows-terminal)
     ;;
 
 # ----------------------------------------------------------------------------
+# Ghostty
+# ----------------------------------------------------------------------------
+ghostty)
+    if [ "$(uname)" = "Darwin" ]; then
+        # macOS: Use AppleScript to create a new tab
+        COMMAND_ESCAPED=$(echo "$FULL_COMMAND" | sed -e 's/\\/\\\\/g' -e 's/"/\\"/g')
+
+        ERROR_OUTPUT=$(osascript - "$COMMAND_ESCAPED" "$DIRECTORY" "$TAB_NAME" 2>&1 <<'APPLESCRIPT'
+on run argv
+    set theCommand to item 1 of argv
+    set theDir to item 2 of argv
+    set theName to item 3 of argv
+
+    tell application "Ghostty"
+        activate
+        set fullCmd to "cd \"" & theDir & "\" && " & theCommand
+        create tab command fullCmd
+    end tell
+end run
+APPLESCRIPT
+        )
+        EXIT_CODE=$?
+
+        if [ $EXIT_CODE -eq 0 ]; then
+            success_message "$TAB_NAME" "Ghostty"
+            exit 0
+        else
+            print_error_header "Ghostty" "$TAB_NAME" "$ERROR_OUTPUT"
+            echo "" >&2
+            echo "Common causes:" >&2
+            echo "  - Ghostty is not running" >&2
+            echo "  - Automation permissions not granted" >&2
+            echo "  - AppleScript support not available (requires recent Ghostty build)" >&2
+            echo "" >&2
+            echo "To grant automation permissions:" >&2
+            echo "  1. Open System Preferences > Security & Privacy > Privacy > Automation" >&2
+            echo "  2. Find your terminal application and enable control of Ghostty" >&2
+            print_manual_instructions "$TAB_NAME" "$COMMAND" "$DIRECTORY" "$PROMPT"
+            exit 3
+        fi
+    else
+        # Linux/other: No CLI API for creating tabs yet
+        echo "Ghostty tab automation not yet supported on Linux" >&2
+        echo "" >&2
+        echo "Ghostty on Linux does not currently provide a CLI API for creating tabs." >&2
+        echo "A +new-window action exists but +new-tab is not yet available." >&2
+        echo "" >&2
+        echo "Please manually open a new terminal tab (Ctrl+Shift+T) and run:" >&2
+        echo "  cd \"$DIRECTORY\"" >&2
+        echo "  $COMMAND" >&2
+        exit 4
+    fi
+    ;;
+
+# ----------------------------------------------------------------------------
 # Unknown terminal
 # ----------------------------------------------------------------------------
 unknown)
-    echo "✗ Your terminal is not supported for automatic tab spawning" >&2
+    echo "Your terminal is not supported for automatic tab spawning" >&2
     echo "" >&2
     echo "To run this task manually, open a new tab and run:" >&2
     echo "" >&2
@@ -628,7 +690,7 @@ unknown)
     echo "  cd \"$DIRECTORY\"" >&2
     echo "  $COMMAND" >&2
     echo "" >&2
-    echo "Supported terminals: iTerm2, Terminal.app, tmux, GNOME Terminal," >&2
+    echo "Supported terminals: iTerm2, Terminal.app, Ghostty, tmux, GNOME Terminal," >&2
     echo "                     Konsole, Alacritty, Kitty, Warp, Hyper, Windows Terminal" >&2
     exit 4
     ;;

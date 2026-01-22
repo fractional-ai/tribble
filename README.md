@@ -129,7 +129,7 @@ Claude: ✓ Created tab 'Frontend'
 ## Requirements
 
 **Supported Terminals:**
-- **macOS:** iTerm2, Terminal.app
+- **macOS:** iTerm2, Terminal.app, Ghostty
 - **Linux:** tmux, GNOME Terminal, Konsole
 - **Windows:** Windows Terminal (via WSL)
 - **Cross-platform:** tmux, Alacritty, Kitty, Hyper, Warp, VS Code

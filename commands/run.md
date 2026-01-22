@@ -287,7 +287,7 @@ Use this mode when NO sequential keywords were detected. Spawn all tasks immedia
 "${CLAUDE_PLUGIN_ROOT}/scripts/spawn.sh" "[tab_name]" "[command]" "[directory]" "[prompt_if_claude]"
 ```
 
-The unified spawn script automatically detects the terminal type and spawns the tab accordingly. It supports: iTerm2, Terminal.app, tmux, GNOME Terminal, Konsole, Alacritty, Kitty, Warp, Hyper, Windows Terminal, and VS Code.
+The unified spawn script automatically detects the terminal type and spawns the tab accordingly. It supports: iTerm2, Terminal.app, Ghostty, tmux, GNOME Terminal, Konsole, Alacritty, Kitty, Warp, Hyper, Windows Terminal, and VS Code.
 
 **IMPORTANT: Tab name sanitization**:
 Before spawning, sanitize tab names:
@@ -337,7 +337,7 @@ Task 2: [Tab name]
   cd "[directory]"
   [command]
 
-Supported terminals: iTerm2, Terminal.app, tmux, GNOME Terminal, Konsole, Alacritty, Kitty, Warp, Hyper, Windows Terminal
+Supported terminals: iTerm2, Terminal.app, Ghostty, tmux, GNOME Terminal, Konsole, Alacritty, Kitty, Warp, Hyper, Windows Terminal
 ```
 
 #### SEQUENTIAL MODE (2+ groups)
