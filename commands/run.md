@@ -759,6 +759,17 @@ The Claude session will create the worktree at ../feature-login and begin work.
 
 **Key difference**: Claude spawns immediately with instructions to create the worktree. The worktree creation happens INSIDE the new Claude session, not in the current window.
 
+## Composability
+
+Spawned Claude sessions are full instances with access to all tools, including `/tribble:run`.
+
+This means:
+- Sessions can spawn sessions
+- The prompt defines the workflow logic
+- No artificial limits on depth or structure
+
+Tribble provides the spawning primitive. You provide the logic.
+
 ## Remember
 
 - **Infer aggressively** - Don't ask questions you can reasonably answer
