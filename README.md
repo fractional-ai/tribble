@@ -12,14 +12,18 @@ Like tribbles, your Claude sessions multiply rapidly.
 
 ## Install
 
-> **Note:** This repository is currently private. The quick install method via curl will be available once the repository becomes public.
+### Quick Install
 
-### Installation
+```bash
+curl -fsSL https://raw.githubusercontent.com/fractional-ai/tribble/main/install.sh | bash
+```
+
+### Manual Installation
 
 **Clone and set up the plugin:**
 ```bash
 # Clone the repository to ~/.claude/plugins/
-git clone git@github.com:fractional-ai/tribble.git ~/.claude/plugins/tribble
+git clone https://github.com/fractional-ai/tribble.git ~/.claude/plugins/tribble
 
 # Make scripts executable
 chmod +x ~/.claude/plugins/tribble/scripts/*.sh
@@ -51,7 +55,7 @@ After adding the alias, restart your terminal or run `source ~/.zshrc` (or `sour
 If you're working on the plugin from a different location:
 ```bash
 # Clone to your development directory
-git clone git@github.com:fractional-ai/tribble.git ~/path/to/dev/tribble
+git clone https://github.com/fractional-ai/tribble.git ~/path/to/dev/tribble
 
 # Make scripts executable
 chmod +x ~/path/to/dev/tribble/scripts/*.sh
@@ -64,13 +68,6 @@ claude --plugin-dir ~/path/to/dev/tribble
 ```
 
 Changes to the plugin will be picked up when you restart Claude Code.
-
-### Quick Install (Available After Repository Goes Public)
-
-Once public, users will be able to install via:
-```bash
-curl -fsSL https://raw.githubusercontent.com/fractional-ai/tribble/main/install.sh | bash
-```
 
 ### Verify Installation
 
