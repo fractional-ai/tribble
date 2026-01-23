@@ -74,8 +74,10 @@ cd ~/.claude/plugins/tribble && git pull
 Report bugs: https://github.com/fractional-ai/tribble/issues
 
 ---
+*"Do you know what you get if you feed a tribble too much?     
+A fat tribble."* .   
+— Kirk
 
 ![Tribbles multiplying](assets/tribbles.png)
 
-*"Do you know what you get if you feed a tribble too much? A fat tribble."*
-— Kirk
+
