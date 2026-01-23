@@ -33,7 +33,7 @@ Start three tabs: frontend, backend, and test watcher
 /tribble:run npm run dev, npm test --watch, docker-compose up
 ```
 
-Spawned Claude sessions receive context from your current session—relevant files, current task, and background—so they can start working immediately. They can use Tribble too, so complex recursive workflows are wupported.
+Spawned Claude sessions receive context from your current session — with relevant files, current task, and background — so they can start working with the correct context. They can use Tribble too, so complex recursive workflows are supported.
 
 ## Supported Terminals
 
