@@ -1,251 +1,144 @@
 # 🐹 Tribble
 
-Quickly spawn Claude Code sessions or commands in new terminal tabs.
+Spawn terminal tabs with one command. Run tasks in parallel.
 
-Like tribbles, your Claude sessions multiply rapidly.
+![Tribbles multiplying](assets/tribbles.png)
 
-**Example:**
-```bash
-/tribble:run open claude to work on auth
-✓ Tab created in 5 seconds
+```
+/tribble:run start frontend, backend, and tests
+
+✓ Created 'Frontend'
+✓ Created 'Backend'
+✓ Created 'Tests'
 ```
 
-## Install
+Three tabs. Three seconds. Done.
 
-### Quick Install
+## Install
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/fractional-ai/tribble/main/install.sh | bash
 ```
 
-### Manual Installation
+Then restart Claude Code.
 
-**Clone and set up the plugin:**
-```bash
-# Clone the repository to ~/.claude/plugins/
-git clone https://github.com/fractional-ai/tribble.git ~/.claude/plugins/tribble
+### Skip the Approval Prompts
 
-# Make scripts executable
-chmod +x ~/.claude/plugins/tribble/scripts/*.sh
+Add Tribble to your allowed permissions in `~/.claude/settings.json`:
+
+```json
+{
+  "permissions": {
+    "allow": [
+      "Bash(~/.claude/plugins/tribble/scripts/*)"
+    ]
+  }
+}
 ```
 
-**To use the plugin, start Claude Code with the `--plugin-dir` flag:**
-```bash
-claude --plugin-dir ~/.claude/plugins/tribble
-```
-
-**Note:** The plugin must be at `~/.claude/plugins/tribble` (or symlinked there) because the scripts reference this path at runtime.
-
-### Optional: Shell Alias
-
-To avoid typing `--plugin-dir` every time, add an alias to your shell config:
-
-```bash
-# For zsh users, add to ~/.zshrc:
-alias claude='claude --plugin-dir ~/.claude/plugins/tribble'
-
-# For bash users, add to ~/.bashrc:
-alias claude='claude --plugin-dir ~/.claude/plugins/tribble'
-```
-
-After adding the alias, restart your terminal or run `source ~/.zshrc` (or `source ~/.bashrc`).
-
-### For Development
-
-If you're working on the plugin from a different location:
-```bash
-# Clone to your development directory
-git clone https://github.com/fractional-ai/tribble.git ~/path/to/dev/tribble
-
-# Make scripts executable
-chmod +x ~/path/to/dev/tribble/scripts/*.sh
-
-# Create symlink so scripts can be found at runtime
-ln -s ~/path/to/dev/tribble ~/.claude/plugins/tribble
-
-# Start Claude Code with the plugin
-claude --plugin-dir ~/path/to/dev/tribble
-```
-
-Changes to the plugin will be picked up when you restart Claude Code.
-
-### Verify Installation
-
-In Claude Code, check the command is available:
-```
-/tribble:run
-```
-
-If the command is recognized, installation succeeded.
-
-### Updating
-
-```bash
-# Navigate to plugin directory
-cd ~/.claude/plugins/tribble
-
-# Pull latest changes
-git pull
-
-# Restart Claude Code
-```
+Now tabs spawn instantly—no confirmation dialogs.
 
 ## Use
 
-```bash
+```
 /tribble:run
 ```
 
-Tell Claude what you want to spawn, and tabs are created immediately.
-
-**Single session:**
+**Spawn a Claude session:**
 ```
-You: /tribble:run open claude to refactor auth
-
-Claude: ✓ Created tab 'Refactor Auth'
-        Your session is ready!
+/tribble:run open claude to refactor the auth module
 ```
 
-**Multiple tasks:**
+**Spawn multiple tabs:**
 ```
-You: /tribble:run start frontend, backend, and test watcher
-
-Claude: What commands?
-
-You: npm run dev:frontend, npm run dev:backend, npm test:watch
-
-Claude: ✓ Created tab 'Frontend'
-        ✓ Created tab 'Backend'
-        ✓ Created tab 'Test Watcher'
-
-        Your sessions are ready!
+/tribble:run npm run dev, npm test --watch, docker-compose up
 ```
 
-**That's it.** No approvals, no plans, no coordination - just spawn and go.
+**Spawn in a specific directory:**
+```
+/tribble:run in ~/projects/api start the server
+```
 
-## Requirements
+### Just Ask
 
-**Supported Terminals:**
-- **macOS:** iTerm2, Terminal.app, Ghostty
-- **Linux:** tmux, GNOME Terminal, Konsole
-- **Windows:** Windows Terminal (via WSL)
-- **Cross-platform:** tmux, Alacritty, Kitty, Hyper, Warp, VS Code
+Skip the slash command. Talk to Claude normally:
 
-Tabs spawn automatically using terminal-specific commands (AppleScript, tmux, etc.)
+- *Use tribble to open a claude session for the auth refactor*
+- *Spawn three tabs: frontend, backend, and test watcher*
+- *Start claude working on the API while I work on the UI*
 
-## FAQ
+Claude invokes Tribble automatically.
 
-**Q: How many tabs can I spawn?**
+### Tribbles Spawning Tribbles
 
-As many as your system can handle. Each tab runs independently with ~50-100MB memory per tab.
+Spawned Claude sessions can use Tribble too. Parallel workflows go recursive:
 
-**Q: Does this work with Docker containers?**
+```
+You: Use tribble to spawn two claude sessions - one for frontend, one for backend
 
-Yes, but terminal detection may not work inside containers. Use tmux inside the container for best results.
+Claude: ✓ Created 'Frontend Claude'
+        ✓ Created 'Backend Claude'
 
-**Q: What if tasks depend on each other?**
+[In Frontend Claude tab]
+Frontend Claude: I'll use tribble to run the dev server and test watcher in parallel...
+                 ✓ Created 'Dev Server'
+                 ✓ Created 'Test Watcher'
+```
 
-Spawn them all and run them in order yourself. Tribble spawns tabs quickly - you control when to start each one.
+Break big tasks into parallel subtasks. Each Claude works independently.
 
-**Q: Can I spawn Claude sessions with specific prompts?**
+## Supported Terminals
 
-Yes! Just say: "open claude to work on X" - the prompt is automatically passed to the new session.
-
-## Performance
-
-- Memory: ~50-100MB per tab
-- CPU: Depends on what you're running
-- Monitor resources if spawning many tabs
-
-## Security
-
-**Command Execution:**
-- Tribble executes commands exactly as provided
-- Validate commands before approving the execution plan
-- Be cautious with commands from untrusted sources
-
-**Directory Access:**
-- Commands run with your user permissions
-- Spawned tabs have full access to specified directories
-- Don't run destructive commands without review
-
-**AppleScript Permissions:**
-- Grants automation control to terminal applications
-- Can be revoked in System Preferences if needed
-- Only affects terminal automation, not system access
+| Platform | Terminals |
+|----------|-----------|
+| macOS | iTerm2, Terminal.app, Ghostty, tmux |
+| Linux | GNOME Terminal, Konsole, tmux |
+| Windows | Windows Terminal (WSL), tmux |
+| Any | Alacritty, Kitty, Warp, Hyper |
 
 ## Troubleshooting
 
-### Validation Tool
+| Problem | Fix |
+|---------|-----|
+| "Not authorized to send Apple events" | System Preferences → Security → Automation → Enable |
+| Tabs don't spawn | `chmod +x ~/.claude/plugins/tribble/scripts/*.sh` |
+| "Not in a tmux session" | Start tmux first: `tmux new-session -s work` |
+| Terminal shows "unknown" | Use tmux for best compatibility |
+| Permission denied | `chmod +x ~/.claude/plugins/tribble/scripts/*.sh` |
 
-Run the validation script to diagnose setup issues:
+Run `./scripts/validate-installation.sh` to diagnose issues.
+
+## Manual Install
+
+If the quick install doesn't work:
 
 ```bash
-./scripts/validate-installation.sh
-```
-
-This checks:
-- Required files exist
-- Scripts are executable
-- Terminal detection works
-- Configuration is valid
-- Terminal-specific requirements
-
-### Common Issues
-
-**"Not authorized to send Apple events" (macOS)**
-
-Fix: System Preferences → Security & Privacy → Privacy → Automation → Enable your terminal
-
-**Tabs don't spawn**
-
-Fixes:
-1. Check scripts are executable: `chmod +x ~/.claude/plugins/tribble/scripts/*.sh`
-2. Verify terminal is detected: `./scripts/detect-terminal.sh`
-3. Run validation: `./scripts/validate-installation.sh`
-
-**"Not in a tmux session"**
-
-Fix: Start tmux first, then run Tribble from within the tmux session:
-```bash
-tmux new-session -s tribble
-# Then run /tribble:run in Claude Code
-```
-
-**Terminal not detected or shows "unknown"**
-
-Options:
-1. Use tmux for best compatibility: `brew install tmux` or `apt install tmux`
-2. Check if your terminal is supported (see Requirements section)
-3. File an issue with your terminal details
-
-**Permission denied errors**
-
-Fix:
-```bash
+git clone https://github.com/fractional-ai/tribble.git ~/.claude/plugins/tribble
 chmod +x ~/.claude/plugins/tribble/scripts/*.sh
 ```
 
-**Plugin not found**
-
-Verify installation:
+To load automatically, add to your shell config:
 ```bash
-ls -la ~/.claude/plugins/tribble
-claude --plugin-dir ~/.claude/plugins/tribble
+alias claude='claude --plugin-dir ~/.claude/plugins/tribble'
 ```
 
-**Commands fail in spawned tabs**
+## Update
 
-Check:
-1. Directory exists and is accessible
-2. Command works when run manually
-3. Environment variables are set correctly
-4. Command doesn't require interactive input
+```bash
+cd ~/.claude/plugins/tribble && git pull
+```
 
-### Getting Help
+## Questions
 
-If issues persist:
-1. Run `./scripts/validate-installation.sh` and share the output
-2. Include your terminal type and OS version
-3. Share any error messages
-4. Report issues at: https://github.com/fractional-ai/tribble/issues
+**How many tabs can I spawn?**
+As many as your system handles. Each tab uses ~50-100MB.
+
+**Works in Docker?**
+Yes. Use tmux inside the container for best results.
+
+**Can I pass prompts to spawned Claude sessions?**
+Yes. Say "open claude to work on X" and the prompt passes through.
+
+## Issues
+
+Report bugs: https://github.com/fractional-ai/tribble/issues
