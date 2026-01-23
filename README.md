@@ -1,6 +1,6 @@
 # 🐹 Tribble
 
-Spawn Claude sessions and terminal tabs directly from Claude Code.
+Spawn terminal tabs and Claude Code sessions  directly from Claude Code.
 
 ```
 Spawn claude sessions for auth, payments, and docs
@@ -10,7 +10,7 @@ Spawn claude sessions for auth, payments, and docs
 ✓ Created Session for  'Docs'
 ```
 
-Three Claude sessions. Running in parallel. One command.
+Three Claude sessions in three separate tabs. Running in parallel. One command.
 
 ## Install
 
