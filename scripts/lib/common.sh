@@ -98,24 +98,31 @@ print_manual_instructions() {
     fi
 }
 
-# Handles prompt by creating a temp file
+# Handles prompt for commands
 # Arguments:
 #   $1 - prompt text
 #   $2 - command
 # Outputs:
-#   Full command with prompt piping
-# Note: Uses stdin redirection (<) which correctly applies to the last
-#       command in a chain, unlike pipe (|) which only applies to the first
+#   Full command with prompt handling
+# Note: Claude Code takes prompts as positional arguments, not stdin.
+#       Other commands use stdin redirection.
 prepare_command_with_prompt() {
     local prompt="$1"
     local command="$2"
 
     if [ -n "$prompt" ]; then
-        local prompt_file=$(mktemp)
-        echo "$prompt" > "$prompt_file"
-        # Use stdin redirection - works correctly with command chains
-        # Example: cmd1 && cmd2 && cmd3 < file  (< applies only to cmd3)
-        echo "$command < \"$prompt_file\" && rm \"$prompt_file\""
+        # Claude Code: pipe prompt to claude
+        if [ "$command" = "claude" ]; then
+            # Escape double quotes and backslashes in prompt for shell
+            local escaped_prompt="${prompt//\\/\\\\}"
+            escaped_prompt="${escaped_prompt//\"/\\\"}"
+            echo "echo \"${escaped_prompt}\" | claude"
+        else
+            # Other commands: use stdin redirection
+            local prompt_file=$(mktemp)
+            echo "$prompt" > "$prompt_file"
+            echo "$command < \"$prompt_file\" && rm \"$prompt_file\""
+        fi
     else
         echo "$command"
     fi

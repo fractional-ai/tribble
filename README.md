@@ -2,8 +2,6 @@
 
 Spawn terminal tabs with one command. Run tasks in parallel.
 
-![Tribbles multiplying](assets/tribbles.png)
-
 ```
 /tribble:run start frontend, backend, and tests
 
@@ -142,3 +140,10 @@ Yes. Say "open claude to work on X" and the prompt passes through.
 ## Issues
 
 Report bugs: https://github.com/fractional-ai/tribble/issues
+
+---
+
+![Tribbles multiplying](assets/tribbles.png)
+
+*"Do you know what you get if you feed a tribble too much? A fat tribble."*
+— Kirk
