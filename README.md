@@ -1,13 +1,13 @@
 # 🐹 Tribble
 
-Spawn Claude sessions and terminal tabs instantly.
+Spawn Claude sessions and terminal tabs directly from Claude Code.
 
 ```
 Spawn claude sessions for auth, payments, and docs
 
-✓ Created 'Auth'
-✓ Created 'Payments'
-✓ Created 'Docs'
+✓ Created Session for 'Auth'
+✓ Created Session for  'Payments'
+✓ Created Session for  'Docs'
 ```
 
 Three Claude sessions. Running in parallel. One command.
@@ -33,7 +33,7 @@ Start three tabs: frontend, backend, and test watcher
 /tribble:run npm run dev, npm test --watch, docker-compose up
 ```
 
-Spawned Claude sessions receive context from your current session—relevant files, current task, and background—so they can start working immediately. They can use Tribble too, so workflows go recursive.
+Spawned Claude sessions receive context from your current session—relevant files, current task, and background—so they can start working immediately. They can use Tribble too, so complex recursive workflows are wupported.
 
 ## Supported Terminals
 
