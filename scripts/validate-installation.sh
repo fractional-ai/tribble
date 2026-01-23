@@ -215,7 +215,7 @@ if [ $ERRORS -eq 0 ]; then
     echo ""
     echo "Next steps:"
     echo "  1. Start Claude Code: claude --plugin-dir $PLUGIN_ROOT"
-    echo "  2. Run the command: /pasta-maker:run"
+    echo "  2. Run the command: /tribble:run"
     echo "  3. Check Examples.md for usage examples"
     exit 0
 else

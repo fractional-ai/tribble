@@ -1,22 +1,21 @@
 #!/bin/bash
 
-# Pasta Maker Plugin Installer
+# Tribble Plugin Installer
 # Usage: ./install.sh [REPO_URL]
 #
 # Example:
-#   ./install.sh git@github.com:fractional-ai/pasta-maker.git
-#   ./install.sh https://github.com/fractional-ai/pasta-maker.git
+#   ./install.sh https://github.com/fractional-ai/tribble.git
 
 set -e
 
-PLUGIN_NAME="pasta-maker"
+PLUGIN_NAME="tribble"
 CLAUDE_PLUGINS_DIR="${HOME}/.claude/plugins"
 INSTALL_DIR="${CLAUDE_PLUGINS_DIR}/${PLUGIN_NAME}"
 
 # Repository URL - can be passed as argument or use default
-REPO_URL="${1:-git@github.com:fractional-ai/pasta-maker.git}"
+REPO_URL="${1:-https://github.com/fractional-ai/tribble.git}"
 
-echo "🍝 Installing Pasta Maker Plugin..."
+echo "🐹 Installing Tribble Plugin..."
 echo ""
 
 # Create plugins directory if it doesn't exist
@@ -51,7 +50,7 @@ if ! git clone "${REPO_URL}" "${INSTALL_DIR}"; then
     echo "❌ Failed to clone repository."
     echo ""
     echo "If you see an authentication error, try:"
-    echo "  1. Using HTTPS: ./install.sh https://github.com/fractional-ai/pasta-maker.git"
+    echo "  1. Check your internet connection"
     echo "  2. Setting up SSH keys: https://docs.github.com/en/authentication"
     exit 1
 fi
@@ -70,8 +69,8 @@ echo "  1. Restart Claude Code (plugin auto-loads from ~/.claude/plugins/):"
 echo "     claude"
 echo ""
 echo "  2. In Claude Code, verify installation:"
-echo "     /pasta-maker:run"
-echo "     /pasta-maker:help"
+echo "     /tribble:run"
+echo "     /tribble:help"
 echo ""
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo ""

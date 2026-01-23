@@ -92,8 +92,8 @@ fi
 # ============================================================================
 
 detect_terminal() {
-    # Debug mode - set PASTA_MAKER_DEBUG=1 to enable
-    if [ "$PASTA_MAKER_DEBUG" = "1" ]; then
+    # Debug mode - set TRIBBLE_DEBUG=1 to enable
+    if [ "$TRIBBLE_DEBUG" = "1" ]; then
         echo "DEBUG: TERM=$TERM" >&2
         echo "DEBUG: TERM_PROGRAM=$TERM_PROGRAM" >&2
         echo "DEBUG: TMUX=$TMUX" >&2

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Common shared functions for Pasta Maker spawn scripts
+# Common shared functions for Tribble spawn scripts
 # This library provides validation, error formatting, and user feedback
 # functions used across all spawn scripts.
 

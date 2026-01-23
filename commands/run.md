@@ -579,7 +579,7 @@ Fix:
 [ERROR] Not in a tmux session
 
 Fix:
-1. Start tmux: tmux new-session -s pasta
+1. Start tmux: tmux new-session -s tribble
 2. Run /tribble:run again from within tmux
 ```
 

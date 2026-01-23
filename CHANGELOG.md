@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to pasta-maker will be documented in this file.
+All notable changes to Tribble will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.0.0] - 2026-01-08
 
 ### Added
-- Initial release of Pasta Maker plugin
+- Initial release of Tribble plugin
 - Task parallelization with dependency analysis
 - Multi-terminal support:
   - macOS: iTerm2, Terminal.app
@@ -16,7 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Intelligent dependency detection
 - Interactive execution plan approval
 - Automatic terminal tab spawning
-- `/pasta-maker:run` command
+- `/tribble:run` command
 - Comprehensive documentation:
   - README with installation and usage
   - DISTRIBUTION_GUIDE for team deployment

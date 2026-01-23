@@ -145,7 +145,7 @@ Yes, but terminal detection may not work inside containers. Use tmux inside the 
 
 **Q: What if tasks depend on each other?**
 
-Spawn them all and run them in order yourself. Pasta Maker spawns tabs quickly - you control when to start each one.
+Spawn them all and run them in order yourself. Tribble spawns tabs quickly - you control when to start each one.
 
 **Q: Can I spawn Claude sessions with specific prompts?**
 
@@ -160,7 +160,7 @@ Yes! Just say: "open claude to work on X" - the prompt is automatically passed t
 ## Security
 
 **Command Execution:**
-- Pasta Maker executes commands exactly as provided
+- Tribble executes commands exactly as provided
 - Validate commands before approving the execution plan
 - Be cautious with commands from untrusted sources
 
@@ -206,7 +206,7 @@ Fixes:
 
 **"Not in a tmux session"**
 
-Fix: Start tmux first, then run Pasta Maker from within the tmux session:
+Fix: Start tmux first, then run Tribble from within the tmux session:
 ```bash
 tmux new-session -s tribble
 # Then run /tribble:run in Claude Code

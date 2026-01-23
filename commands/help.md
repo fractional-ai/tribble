@@ -92,7 +92,7 @@ Grant accessibility permissions:
 
 Enable debug output for terminal detection:
 ```bash
-export PASTA_MAKER_DEBUG=1
+export TRIBBLE_DEBUG=1
 ```
 
 This outputs environment variables and detection logic to help troubleshoot issues.

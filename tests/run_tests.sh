@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# Pasta Maker Test Suite
+# Tribble Test Suite
 # Tests script syntax and validation logic without spawning actual tabs
 
 set -e
@@ -11,7 +11,7 @@ RED='\033[0;31m'
 YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
-echo "=== Pasta Maker Test Suite ==="
+echo "=== Tribble Test Suite ==="
 echo ""
 
 # Determine script directory (handles both direct execution and symlinks)

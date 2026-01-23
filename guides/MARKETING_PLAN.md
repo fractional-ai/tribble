@@ -1,8 +1,8 @@
-# Pasta Maker: AI Engineer Adoption Plan
+# Tribble: AI Engineer Adoption Plan
 
 ## Executive Summary
 
-Pasta Maker is a Claude Code plugin that intelligently parallelizes tasks across terminal tabs. For AI engineers juggling model training, data processing, testing, and deployment workflows, it eliminates context-switching overhead and maximizes throughput. This plan targets rapid adoption across technical teams through demo-driven evangelism, quantifiable productivity wins, and frictionless onboarding.
+Tribble is a Claude Code plugin that intelligently parallelizes tasks across terminal tabs. For AI engineers juggling model training, data processing, testing, and deployment workflows, it eliminates context-switching overhead and maximizes throughput. This plan targets rapid adoption across technical teams through demo-driven evangelism, quantifiable productivity wins, and frictionless onboarding.
 
 ---
 
@@ -16,7 +16,7 @@ AI engineers waste 30-40% of their day waiting for sequential tasks that could r
 - Context-switching between long-running processes
 
 ### Solution
-Pasta Maker analyzes task dependencies and spawns parallel execution plans across terminal tabs automatically. One command replaces 15 minutes of manual orchestration.
+Tribble analyzes task dependencies and spawns parallel execution plans across terminal tabs automatically. One command replaces 15 minutes of manual orchestration.
 
 ### Key Benefits
 
@@ -71,18 +71,18 @@ Pasta Maker analyzes task dependencies and spawns parallel execution plans acros
 
 **#engineering-tools channel kickoff:**
 ```
-🚀 New Tool Alert: Pasta Maker for Claude Code
+🚀 New Tool Alert: Tribble for Claude Code
 
 Tired of running `npm test`, `npm run build`, then `docker-compose up`
-one at a time? Pasta Maker parallelizes tasks intelligently.
+one at a time? Tribble parallelizes tasks intelligently.
 
 Example: Train 3 model configs simultaneously
-Command: /pasta-maker:run
+Command: /tribble:run
 → "Train model with lr=0.001, Train model with lr=0.01, Train model with lr=0.1"
 Result: 3 parallel tabs, all training at once
 
 15-min demo this Friday at 2pm (Zoom link below)
-Install now: claude --plugin-dir /shared/plugins/pasta-maker
+Install now: claude --plugin-dir /shared/plugins/tribble
 
 Questions? Thread below 👇
 ```
@@ -91,25 +91,25 @@ Questions? Thread below 👇
 ```
 ML Engineers: Stop waiting for experiments to finish
 
-Pasta Maker = parallel execution for model training workflows
+Tribble = parallel execution for model training workflows
 
 Real example from @engineer:
 "Used to run 5 ablation studies sequentially (8 hours).
 Now I run them in parallel (1.6 hours). Game changer."
 
-Try it: /pasta-maker:run
-Docs: /shared/plugins/pasta-maker/README.md
+Try it: /tribble:run
+Docs: /shared/plugins/tribble/README.md
 ```
 
 #### Email Campaign
 
-**Subject:** [New Tool] Parallelize Your Workflows with Pasta Maker
+**Subject:** [New Tool] Parallelize Your Workflows with Tribble
 
 **Body:**
 ```
 Hi Team,
 
-We've deployed Pasta Maker, a Claude Code plugin that automatically
+We've deployed Tribble, a Claude Code plugin that automatically
 parallelizes tasks across terminal tabs.
 
 🎯 Built for: AI engineers with multi-stage workflows
@@ -124,8 +124,8 @@ Perfect for:
 - Development server orchestration
 
 Getting Started:
-1. claude --plugin-dir /shared/plugins/pasta-maker
-2. Run: /pasta-maker:run
+1. claude --plugin-dir /shared/plugins/tribble
+2. Run: /tribble:run
 3. Describe your tasks in plain English
 
 Live demos:
@@ -148,11 +148,11 @@ Questions? Reply to this thread or ping #engineering-tools.
 
 #### Champion Program
 - Identify 3-5 early adopters per team
-- Give them "Pasta Maker Champion" Slack badge
+- Give them "Tribble Champion" Slack badge
 - Empower them to help teammates with onboarding
 
 #### Success Stories Channel
-Create **#pasta-maker-wins** Slack channel:
+Create **#tribble-wins** Slack channel:
 ```
 Template for posts:
 ⏱️ Time saved: [X minutes/hours]
@@ -164,7 +164,7 @@ Template for posts:
 ### Phase 3: Scaling (Week 5-8)
 
 #### Documentation Blitz
-- Add pasta-maker examples to internal runbooks
+- Add tribble examples to internal runbooks
 - Update onboarding docs with plugin installation
 - Create team-specific workflow templates
 
@@ -192,7 +192,7 @@ Open terminal in sample project with tests and build scripts.
 **Script:**
 ```
 1. Introduction (30 sec)
-   "I'm going to show you how Pasta Maker turns 15 minutes of
+   "I'm going to show you how Tribble turns 15 minutes of
     manual work into 1 command."
 
 2. The Manual Way (1 min)
@@ -200,8 +200,8 @@ Open terminal in sample project with tests and build scripts.
    "Normally I'd run npm run test:frontend, then npm run test:backend,
     then npm run build. That's 3 commands, 3 tabs, lots of clicking."
 
-3. The Pasta Maker Way (2 min)
-   [Type: /pasta-maker:run]
+3. The Tribble Way (2 min)
+   [Type: /tribble:run]
 
    Claude: "What tasks would you like to accomplish?"
 
@@ -248,8 +248,8 @@ Python project with multiple model training scripts.
     Each training run takes 20 minutes. Sequential = 100 minutes.
     Let's do better."
 
-2. Launch Pasta Maker (1 min)
-   [Type: /pasta-maker:run]
+2. Launch Tribble (1 min)
+   [Type: /tribble:run]
 
    [Paste pre-written task list:]
    "
@@ -281,7 +281,7 @@ Python project with multiple model training scripts.
    [New example]
    "What if I need to preprocess data first?"
 
-   [Type: /pasta-maker:run]
+   [Type: /tribble:run]
    "
    1. python preprocess.py --output data/clean.csv
    2. python train.py --data data/clean.csv --lr 0.001
@@ -336,15 +336,15 @@ Execution Plan:
 
 ### Quick Start Guide (1-pager)
 
-**Title:** Pasta Maker in 60 Seconds
+**Title:** Tribble in 60 Seconds
 
 **Content:**
 ```
 1. Install
-   claude --plugin-dir /shared/plugins/pasta-maker
+   claude --plugin-dir /shared/plugins/tribble
 
 2. Run
-   /pasta-maker:run
+   /tribble:run
 
 3. Describe Tasks
    "Train 3 models with different learning rates"
@@ -385,21 +385,21 @@ Need help? #engineering-tools or office hours (Tuesdays 3pm)
 **Common Workflows:**
 ```bash
 # Parallel Development Servers
-/pasta-maker:run
+/tribble:run
 Tasks: "npm run dev (frontend), npm run api (backend),
         docker-compose up (database)"
 
 # Model Hyperparameter Sweep
-/pasta-maker:run
+/tribble:run
 Tasks: "python train.py --lr 0.001, python train.py --lr 0.01,
         python train.py --lr 0.1, python train.py --lr 1.0"
 
 # Full CI/CD
-/pasta-maker:run
+/tribble:run
 Tasks: "npm run lint, npm test, npm run build, npm run deploy"
 
 # Data Processing Pipeline
-/pasta-maker:run
+/tribble:run
 Tasks: "python fetch_data.py, python clean_data.py,
         python train_model.py, python evaluate.py"
 ```
@@ -424,7 +424,7 @@ Tasks: "python fetch_data.py, python clean_data.py,
 
 **Adoption Rate**
 - Target: 60% of AI engineers using within 8 weeks
-- Measurement: Unique users running `/pasta-maker:run` per week
+- Measurement: Unique users running `/tribble:run` per week
 - Data source: Claude Code plugin analytics
 
 **Weekly Active Users (WAU)**
@@ -451,7 +451,7 @@ Tasks: "python fetch_data.py, python clean_data.py,
 
 **Satisfaction**
 - NPS score from user survey (target: 40+ by week 8)
-- #pasta-maker-wins posts (target: 5+ per week by week 4)
+- #tribble-wins posts (target: 5+ per week by week 4)
 - Feature requests (healthy: 2-3 per week indicates engagement)
 
 ### Success Criteria
@@ -497,7 +497,7 @@ Tasks: "python fetch_data.py, python clean_data.py,
 **Deliverables:**
 - 2 recorded demos
 - Quick start guide
-- Slack channel: #pasta-maker-wins
+- Slack channel: #tribble-wins
 - First 20 installs
 
 ### Week 3-4: Scaling Adoption
@@ -509,7 +509,7 @@ Tasks: "python fetch_data.py, python clean_data.py,
 
 **Activities:**
 - **Week 3:** Office hours every Tuesday (announce Monday in Slack)
-- **Week 3:** Launch #pasta-maker-wins campaign (seed with 3 champion posts)
+- **Week 3:** Launch #tribble-wins campaign (seed with 3 champion posts)
 - **Week 3:** Demo 3 (Advanced) - record and share
 - **Week 4:** Email follow-up with success metrics ("20 engineers saved 300+ hours")
 - **Week 4:** Individual training sessions with teams on request
@@ -552,7 +552,7 @@ Tasks: "python fetch_data.py, python clean_data.py,
 **Activities:**
 - **Week 7:** Add to onboarding checklist for new hires
 - **Week 7:** Reference in sprint planning templates
-- **Week 7:** Update runbooks across teams with pasta-maker examples
+- **Week 7:** Update runbooks across teams with tribble examples
 - **Week 8:** Final metrics review and success assessment
 - **Week 8:** Retrospective with champions
 - **Week 8:** Plan for ongoing maintenance and support
@@ -573,7 +573,7 @@ Tasks: "python fetch_data.py, python clean_data.py,
 
 **Slack Support:**
 - #engineering-tools for questions
-- #pasta-maker-wins for success stories
+- #tribble-wins for success stories
 - Champions respond to common questions
 
 **Documentation:**
@@ -650,7 +650,7 @@ Tasks: "python fetch_data.py, python clean_data.py,
 
 **Report Format:**
 ```
-Pasta Maker Weekly Update - Week X
+Tribble Weekly Update - Week X
 
 📊 Key Metrics:
 - Adoption Rate: X% (target: Y%)
@@ -703,7 +703,7 @@ Pasta Maker Weekly Update - Week X
 ### What Good Looks Like at 8 Weeks
 
 **Quantitative:**
-- 60%+ of AI engineers have run pasta-maker
+- 60%+ of AI engineers have run tribble
 - 40%+ use it at least once per week
 - Average 4+ tasks per command
 - <5 support tickets per week
@@ -717,8 +717,8 @@ Pasta Maker Weekly Update - Week X
 - Integration into standard operating procedures
 
 **Cultural:**
-- Pasta-maker is the default for parallel workflows
-- Engineers describe workflows as "pasta-maker-able"
+- Tribble is the default for parallel workflows
+- Engineers describe workflows as "tribble-able"
 - Tool referenced in technical interviews ("Here's how we parallelize work")
 - New hires expect it to be available
 
@@ -728,7 +728,7 @@ Pasta Maker Weekly Update - Week X
 
 ### Slack Post: Week 1 Announcement
 ```
-🚀 Introducing Pasta Maker: Intelligent Task Parallelization for Claude Code
+🚀 Introducing Tribble: Intelligent Task Parallelization for Claude Code
 
 Stop running tasks sequentially when they could run in parallel.
 
@@ -736,7 +736,7 @@ What it does:
 Analyzes task dependencies and spawns parallel execution plans across terminal tabs.
 
 Example:
-You: /pasta-maker:run
+You: /tribble:run
 You: "Train 3 models with learning rates 0.001, 0.01, 0.1"
 → 3 tabs spawn, all training simultaneously
 
@@ -747,21 +747,21 @@ Why it matters:
 • Works with any command
 
 Try it now:
-claude --plugin-dir /shared/plugins/pasta-maker
+claude --plugin-dir /shared/plugins/tribble
 
 Live demo Friday 2pm: [Zoom link]
-Docs: /shared/plugins/pasta-maker/README.md
+Docs: /shared/plugins/tribble/README.md
 
 Questions? Ask here 👇
 ```
 
 ### Email: Week 3 Success Story
 ```
-Subject: Pasta Maker Update: 300+ Hours Saved
+Subject: Tribble Update: 300+ Hours Saved
 
 Hi Team,
 
-Quick Pasta Maker update:
+Quick Tribble update:
 
 📊 By the numbers (3 weeks in):
 • 25 active users
@@ -771,7 +771,7 @@ Quick Pasta Maker update:
 
 🎉 Success story:
 "I was running 8 dataset preprocessing jobs sequentially—took all day.
-With Pasta Maker they run in parallel—done in 90 minutes.
+With Tribble they run in parallel—done in 90 minutes.
 This is now part of my daily workflow." - Alex (ML Team)
 
 💡 New use case discovered:
@@ -783,7 +783,7 @@ Running multiple jupyter notebooks simultaneously for exploratory analysis
 • Cheat sheet: [link]
 
 Not using it yet? Install takes 30 seconds:
-claude --plugin-dir /shared/plugins/pasta-maker
+claude --plugin-dir /shared/plugins/tribble
 
 Reply with questions or share your success stories!
 
@@ -792,23 +792,23 @@ Reply with questions or share your success stories!
 
 ### Slack Post: Week 5 Template Sharing
 ```
-🎯 Pasta Maker Pro Tip: Team Workflow Templates
+🎯 Tribble Pro Tip: Team Workflow Templates
 
 We've documented the most common workflows per team.
 
 ML Engineers:
-/pasta-maker:run
+/tribble:run
 "Train model config1.yaml, Train model config2.yaml, Train model config3.yaml"
 
 MLOps:
-/pasta-maker:run
+/tribble:run
 "Deploy dev environment, Deploy staging environment, Run smoke tests"
 
 Research:
-/pasta-maker:run
+/tribble:run
 "Run experiment_a.py, Run experiment_b.py, Run experiment_c.py, Merge results"
 
-Have a workflow to share? Post it in #pasta-maker-wins!
+Have a workflow to share? Post it in #tribble-wins!
 
 Full template library: [wiki link]
 ```

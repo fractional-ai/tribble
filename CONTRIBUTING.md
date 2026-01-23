@@ -1,4 +1,4 @@
-# Contributing to Pasta Maker
+# Contributing to Tribble
 
 ## Development Setup
 1. Fork the repository

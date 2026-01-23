@@ -1,6 +1,6 @@
-# Pasta Maker Test Suite
+# Tribble Test Suite
 
-This directory contains tests to validate the Pasta Maker plugin functionality, ensuring scripts work correctly and catching issues before deployment.
+This directory contains tests to validate the Tribble plugin functionality, ensuring scripts work correctly and catching issues before deployment.
 
 ## Overview
 
@@ -43,7 +43,7 @@ The automated test suite validates:
 ### Example Output
 
 ```
-=== Pasta Maker Test Suite ===
+=== Tribble Test Suite ===
 
 Test 1: Script Syntax Validation
 -----------------------------------
@@ -215,7 +215,7 @@ Use this checklist when testing changes or before releasing:
 
 ### Plugin Integration
 - [ ] Plugin loads in Claude Code
-- [ ] `/pasta-maker:run` command is recognized
+- [ ] `/tribble:run` command is recognized
 - [ ] Permissions whitelist includes all spawn scripts
 - [ ] Settings file has no hardcoded paths
 - [ ] All required files are present
@@ -293,7 +293,7 @@ Add to `.git/hooks/pre-commit`:
 
 ```bash
 #!/bin/bash
-echo "Running Pasta Maker tests..."
+echo "Running Tribble tests..."
 ./tests/run_tests.sh || {
     echo "Tests failed. Commit aborted."
     exit 1
