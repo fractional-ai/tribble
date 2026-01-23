@@ -74,9 +74,8 @@ cd ~/.claude/plugins/tribble && git pull
 Report bugs: https://github.com/fractional-ai/tribble/issues
 
 ---
-*"Do you know what you get if you feed a tribble too much?     
-A fat tribble."* .   
-— Kirk
+*"Obviously tribbles are very perceptive creatures, Captain."*   
+— Spock (Star Trek)
 
 ![Tribbles multiplying](assets/tribbles.png)
 
