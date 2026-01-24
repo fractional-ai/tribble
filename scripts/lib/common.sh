@@ -87,12 +87,13 @@ print_manual_instructions() {
     echo "  cd \"$directory\"" >&2
 
     if [ -n "$prompt" ]; then
-        # Save prompt to temp file for complex commands
-        echo "  echo '$prompt' | $command" >&2
+        # For manual instructions, save prompt to a file the user can cat
+        local manual_prompt_file="/tmp/tribble_manual_prompt.txt"
+        printf '%s' "$prompt" > "$manual_prompt_file"
         echo "" >&2
-        echo "  Or save prompt to file first if command is complex:" >&2
-        echo "  echo '$prompt' > /tmp/prompt.txt" >&2
-        echo "  $command < /tmp/prompt.txt && rm /tmp/prompt.txt" >&2
+        echo "  # Prompt saved to $manual_prompt_file" >&2
+        echo "  cat \"$manual_prompt_file\" | $command" >&2
+        echo "  rm \"$manual_prompt_file\"  # cleanup after" >&2
     else
         echo "  $command" >&2
     fi
@@ -104,24 +105,26 @@ print_manual_instructions() {
 #   $2 - command
 # Outputs:
 #   Full command with prompt handling
-# Note: Claude Code takes prompts as positional arguments, not stdin.
-#       Other commands use stdin redirection.
+# Note: Uses temp file approach to avoid shell escaping issues with
+#       multiline prompts containing special characters.
 prepare_command_with_prompt() {
     local prompt="$1"
     local command="$2"
 
     if [ -n "$prompt" ]; then
-        # Claude Code: pipe prompt to claude
+        # Create a unique temp file for the prompt
+        # Using a predictable pattern so we can clean up
+        local prompt_file="/tmp/tribble_prompt_$$.txt"
+
+        # Write prompt to temp file (handles all special chars safely)
+        printf '%s' "$prompt" > "$prompt_file"
+
+        # Claude Code: pipe prompt file to claude, then clean up
         if [ "$command" = "claude" ]; then
-            # Escape double quotes and backslashes in prompt for shell
-            local escaped_prompt="${prompt//\\/\\\\}"
-            escaped_prompt="${escaped_prompt//\"/\\\"}"
-            echo "echo \"${escaped_prompt}\" | claude"
+            echo "cat \"$prompt_file\" | claude; rm -f \"$prompt_file\""
         else
             # Other commands: use stdin redirection
-            local prompt_file=$(mktemp)
-            echo "$prompt" > "$prompt_file"
-            echo "$command < \"$prompt_file\" && rm \"$prompt_file\""
+            echo "$command < \"$prompt_file\" && rm -f \"$prompt_file\""
         fi
     else
         echo "$command"
