@@ -105,27 +105,41 @@ print_manual_instructions() {
 #   $2 - command
 # Outputs:
 #   Full command with prompt handling
-# Note: Uses temp file approach to avoid shell escaping issues with
-#       multiline prompts containing special characters.
+# Note: Uses wrapper script approach to avoid issues with command substitution
+#       not executing properly when commands are typed via AppleScript.
 prepare_command_with_prompt() {
     local prompt="$1"
     local command="$2"
 
     if [ -n "$prompt" ]; then
-        # Create a unique temp file for the prompt
-        # Using a predictable pattern so we can clean up
-        local prompt_file="/tmp/tribble_prompt_$$.txt"
+        # Create a unique wrapper script that handles the prompt
+        # This avoids issues with $() not executing when typed via AppleScript
+        local wrapper_script="/tmp/tribble_run_$$.sh"
 
-        # Write prompt to temp file (handles all special chars safely)
-        printf '%s' "$prompt" > "$prompt_file"
-
-        # Claude Code: pipe prompt file to claude, then clean up
         if [ "$command" = "claude" ]; then
-            echo "cat \"$prompt_file\" | claude; rm -f \"$prompt_file\""
+            # For Claude: pass prompt as argument
+            cat > "$wrapper_script" << WRAPPER_EOF
+#!/bin/bash
+prompt=\$(cat << 'PROMPT_EOF'
+$prompt
+PROMPT_EOF
+)
+claude "\$prompt"
+rm -f "$wrapper_script"
+WRAPPER_EOF
         else
             # Other commands: use stdin redirection
-            echo "$command < \"$prompt_file\" && rm -f \"$prompt_file\""
+            cat > "$wrapper_script" << WRAPPER_EOF
+#!/bin/bash
+cat << 'PROMPT_EOF' | $command
+$prompt
+PROMPT_EOF
+rm -f "$wrapper_script"
+WRAPPER_EOF
         fi
+
+        chmod +x "$wrapper_script"
+        echo "$wrapper_script"
     else
         echo "$command"
     fi

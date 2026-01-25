@@ -495,7 +495,7 @@ kitty)
             KITTY_OPTS=""
         fi
 
-        if kitty @ $KITTY_OPTS launch --type=tab --tab-title "$TAB_NAME" --cwd "$DIRECTORY" "$USER_SHELL" -l -c "$KITTY_FULL_COMMAND" 2>/dev/null; then
+        if kitty @ $KITTY_OPTS launch --type=tab --tab-title "$TAB_NAME" --cwd "$DIRECTORY" "$USER_SHELL" -i -c "$KITTY_FULL_COMMAND" 2>/dev/null; then
             echo "✓ Created tab '$TAB_NAME' in Kitty"
             exit 0
         else
