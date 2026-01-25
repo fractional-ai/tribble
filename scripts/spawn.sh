@@ -468,11 +468,14 @@ konsole)
 # ----------------------------------------------------------------------------
 kitty)
     COMMAND_ESCAPED="${COMMAND//\'/\'\\\'\'}"
-    KITTY_FULL_COMMAND="cd '${DIRECTORY}' && ${COMMAND}; exec bash"
+    # Use user's default shell for proper PATH
+    USER_SHELL="${SHELL:-/bin/bash}"
+    USER_SHELL_NAME=$(basename "$USER_SHELL")
+    KITTY_FULL_COMMAND="cd '${DIRECTORY}' && ${COMMAND}; exec $USER_SHELL_NAME"
 
     if [ -n "$PROMPT" ]; then
         PROMPT_ESCAPED=$(printf '%q' "$PROMPT")
-        KITTY_FULL_COMMAND="echo ${PROMPT_ESCAPED} | (cd '${DIRECTORY}' && ${COMMAND}); exec bash"
+        KITTY_FULL_COMMAND="echo ${PROMPT_ESCAPED} | (cd '${DIRECTORY}' && ${COMMAND}); exec $USER_SHELL_NAME"
     fi
 
     # Convert RGB from iTerm format (0-65535) to hex format for Kitty
@@ -484,7 +487,15 @@ kitty)
     KITTY_COLOR="#${RED_HEX}${GREEN_HEX}${BLUE_HEX}"
 
     if command -v kitty &>/dev/null; then
-        if kitty @ launch --type=tab --tab-title "$TAB_NAME" --tab-color "$KITTY_COLOR" --cwd "$DIRECTORY" bash -c "$KITTY_FULL_COMMAND" 2>/dev/null; then
+        # Try socket connection first (works without TTY), then fall back to default
+        KITTY_SOCKET="/tmp/kitty-socket"
+        if [ -S "$KITTY_SOCKET" ]; then
+            KITTY_OPTS="--to unix:$KITTY_SOCKET"
+        else
+            KITTY_OPTS=""
+        fi
+
+        if kitty @ $KITTY_OPTS launch --type=tab --tab-title "$TAB_NAME" --cwd "$DIRECTORY" "$USER_SHELL" -l -c "$KITTY_FULL_COMMAND" 2>/dev/null; then
             echo "✓ Created tab '$TAB_NAME' in Kitty"
             exit 0
         else
