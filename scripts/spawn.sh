@@ -497,7 +497,7 @@ kitty)
 
         if kitty @ $KITTY_OPTS launch --type=tab --tab-title "$TAB_NAME" --cwd "$DIRECTORY" "$USER_SHELL" -i -c "$KITTY_FULL_COMMAND" 2>/dev/null; then
             # Set tab color using set-tab-color (match most recently created tab)
-            kitty @ $KITTY_OPTS set-tab-color -m recent:0 active_fg="$KITTY_COLOR" 2>/dev/null || true
+            kitty @ $KITTY_OPTS set-tab-color -m recent:0 active_fg="$KITTY_COLOR" inactive_fg="$KITTY_COLOR" 2>/dev/null || true
             echo "✓ Created tab '$TAB_NAME' in Kitty"
             exit 0
         else
