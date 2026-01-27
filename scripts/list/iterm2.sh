@@ -28,8 +28,11 @@ on run
                     set sessionId to id of s
                     set sessionName to name of s
 
+                    -- Escape special characters in the name
+                    set escapedName to my escapeForJson(sessionName)
+
                     -- Build JSON object manually
-                    set jsonObj to "{\"id\":\"" & sessionId & "\",\"name\":\"" & sessionName & "\",\"terminal\":\"iterm2\",\"window\":\"" & windowIndex & "\",\"tab\":\"" & tabIndex & "\"}"
+                    set jsonObj to "{\"id\":\"" & sessionId & "\",\"name\":\"" & escapedName & "\",\"terminal\":\"iterm2\",\"window\":\"" & windowIndex & "\",\"tab\":\"" & tabIndex & "\"}"
                     set end of jsonParts to jsonObj
                 end repeat
                 set tabIndex to tabIndex + 1
@@ -49,6 +52,20 @@ on run
 
     return jsonArray
 end run
+
+on escapeForJson(theText)
+    set escapedText to ""
+    repeat with c in theText
+        if c is "\"" then
+            set escapedText to escapedText & "\\\""
+        else if c is "\\" then
+            set escapedText to escapedText & "\\\\"
+        else
+            set escapedText to escapedText & c
+        end if
+    end repeat
+    return escapedText
+end escapeForJson
 APPLESCRIPT
 )
 EXIT_CODE=$?

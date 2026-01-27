@@ -42,34 +42,35 @@ fi
 
 # Use Python if available for reliable JSON parsing, otherwise use basic extraction
 if command -v python3 &>/dev/null; then
-    python3 << PYTHON_EOF
+    # Pipe JSON to Python via stdin to avoid heredoc escaping issues
+    echo "$KITTY_JSON" | python3 -c '
 import json
 import sys
 
 try:
-    data = json.loads('''$KITTY_JSON''')
+    data = json.load(sys.stdin)
     result = []
 
     for os_window in data:
-        for tab in os_window.get('tabs', []):
-            tab_id = str(tab.get('id', ''))
-            tab_title = tab.get('title', '')
+        for tab in os_window.get("tabs", []):
+            tab_id = str(tab.get("id", ""))
+            tab_title = tab.get("title", "")
 
-            for window in tab.get('windows', []):
-                window_id = str(window.get('id', ''))
-                window_title = window.get('title', '') or tab_title
+            for window in tab.get("windows", []):
+                window_id = str(window.get("id", ""))
+                window_title = window.get("title", "") or tab_title
 
                 result.append({
-                    'id': window_id,
-                    'name': window_title,
-                    'terminal': 'kitty',
-                    'tab_id': tab_id
+                    "id": window_id,
+                    "name": window_title,
+                    "terminal": "kitty",
+                    "tab_id": tab_id
                 })
 
     print(json.dumps(result))
 except Exception as e:
-    print('[]')
-PYTHON_EOF
+    print("[]")
+'
 else
     # Fallback: just output empty array if no Python
     echo "[]"
