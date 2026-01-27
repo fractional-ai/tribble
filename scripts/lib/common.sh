@@ -107,34 +107,35 @@ print_manual_instructions() {
 #   Full command with prompt handling
 # Note: Uses wrapper script approach to avoid issues with command substitution
 #       not executing properly when commands are typed via AppleScript.
+#       Also uses a separate prompt file to avoid bash 3.2 heredoc quoting bugs
+#       when single quotes appear inside heredocs within command substitution.
 prepare_command_with_prompt() {
     local prompt="$1"
     local command="$2"
 
     if [ -n "$prompt" ]; then
-        # Create a unique wrapper script that handles the prompt
-        # This avoids issues with $() not executing when typed via AppleScript
+        # Create unique files for wrapper script and prompt
+        # Using separate prompt file avoids bash 3.2 heredoc quoting bugs
         local wrapper_script="/tmp/tribble_run_$$.sh"
+        local prompt_file="/tmp/tribble_prompt_$$.txt"
+
+        # Write prompt to a separate file (avoids heredoc quoting issues)
+        printf '%s' "$prompt" > "$prompt_file"
 
         if [ "$command" = "claude" ]; then
             # For Claude: pass prompt as argument
             cat > "$wrapper_script" << WRAPPER_EOF
 #!/bin/bash
-prompt=\$(cat << 'PROMPT_EOF'
-$prompt
-PROMPT_EOF
-)
+prompt=\$(cat "$prompt_file")
 claude "\$prompt"
-rm -f "$wrapper_script"
+rm -f "$wrapper_script" "$prompt_file"
 WRAPPER_EOF
         else
             # Other commands: use stdin redirection
             cat > "$wrapper_script" << WRAPPER_EOF
 #!/bin/bash
-cat << 'PROMPT_EOF' | $command
-$prompt
-PROMPT_EOF
-rm -f "$wrapper_script"
+cat "$prompt_file" | $command
+rm -f "$wrapper_script" "$prompt_file"
 WRAPPER_EOF
         fi
 
