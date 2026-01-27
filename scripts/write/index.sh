@@ -25,17 +25,38 @@ source "$LIB_DIR/common.sh"
 source "$LIB_DIR/detect.sh"
 
 # Parse arguments
-SESSION_ID="$1"
-TEXT="$2"
+SEND_ENTER=true
+SESSION_ID=""
+TEXT=""
+
+while [ $# -gt 0 ]; do
+    case "$1" in
+        --no-enter|-n)
+            SEND_ENTER=false
+            shift
+            ;;
+        *)
+            if [ -z "$SESSION_ID" ]; then
+                SESSION_ID="$1"
+            elif [ -z "$TEXT" ]; then
+                TEXT="$1"
+            fi
+            shift
+            ;;
+    esac
+done
 
 if [ -z "$SESSION_ID" ] || [ -z "$TEXT" ]; then
     echo "[ERROR] Missing required arguments" >&2
     echo "" >&2
-    echo "Usage: $(basename "$0") <session_id> <text>" >&2
+    echo "Usage: $(basename "$0") [--no-enter|-n] <session_id> <text>" >&2
     echo "" >&2
     echo "Arguments:" >&2
     echo "  session_id - Target session (format varies by terminal)" >&2
     echo "  text       - Text to send to the session" >&2
+    echo "" >&2
+    echo "Options:" >&2
+    echo "  --no-enter, -n  Don't send Enter/Return after the text" >&2
     echo "" >&2
     echo "Session ID formats by terminal:" >&2
     echo "  tmux:     session:window (e.g., tribble:0)" >&2
@@ -58,7 +79,7 @@ if ! supports_primitive "$TERMINAL_TYPE" "write"; then
 fi
 
 # Export variables for terminal-specific scripts
-export SESSION_ID TEXT
+export SESSION_ID TEXT SEND_ENTER
 
 # Dispatch to terminal-specific implementation
 TERMINAL_SCRIPT="$SCRIPT_DIR/$TERMINAL_TYPE.sh"

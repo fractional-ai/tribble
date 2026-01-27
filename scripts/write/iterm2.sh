@@ -19,10 +19,11 @@ if [ -z "$TEXT" ]; then
     exit 1
 fi
 
-OUTPUT=$(osascript - "$SESSION_ID" "$TEXT" 2>&1 <<'APPLESCRIPT'
+OUTPUT=$(osascript - "$SESSION_ID" "$TEXT" "$SEND_ENTER" 2>&1 <<'APPLESCRIPT'
 on run argv
     set targetSessionId to item 1 of argv
     set textToWrite to item 2 of argv
+    set sendEnter to item 3 of argv
 
     tell application "iTerm2"
         repeat with w in windows
@@ -30,7 +31,11 @@ on run argv
                 repeat with s in sessions of t
                     if id of s is targetSessionId then
                         -- Write text to the session
-                        write text textToWrite
+                        if sendEnter is "true" then
+                            write text textToWrite newline YES
+                        else
+                            write text textToWrite newline NO
+                        end if
                         return ""
                     end if
                 end repeat

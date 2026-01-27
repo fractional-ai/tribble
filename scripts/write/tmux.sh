@@ -36,5 +36,9 @@ fi
 
 # Send text to the pane
 # This sends the text literally, without executing it
-# Use C-m at the end to send Enter if you want to execute a command
 tmux send-keys -t "$SESSION_ID" "$TEXT"
+
+# Send Enter if --enter flag was passed
+if [ "$SEND_ENTER" = "true" ]; then
+    tmux send-keys -t "$SESSION_ID" C-m
+fi

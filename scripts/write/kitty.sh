@@ -45,3 +45,8 @@ if [ $EXIT_CODE -ne 0 ]; then
         exit 3
     fi
 fi
+
+# Send Enter if --enter flag was passed
+if [ "$SEND_ENTER" = "true" ]; then
+    kitty @ $KITTY_OPTS send-text --match "id:$SESSION_ID" $'\r' 2>/dev/null
+fi
