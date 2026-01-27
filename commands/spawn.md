@@ -1,5 +1,5 @@
 ---
-description: Spawn new Claude Code sessions or terminal tabs. Use when user wants to "make a new claude session", "spawn a claude session", "open a new claude", "start another claude", or run commands in new tabs.
+description: Spawn new Claude Code sessions or terminal tabs. Use when user wants to "make a new session", "spawn a new session", "make a new claude session", "spawn a claude session", "open a new claude", "start another claude", or run commands in new tabs.
 allowed-tools: Bash, Read
 ---
 
@@ -42,7 +42,7 @@ When the user provides input, determine if it's a shell command or a Claude prom
 - Git operations: "git worktree", "git checkout", "git clone", etc. (but see Step 1.8 for worktree special handling)
 
 **Claude prompt indicators** (treat as Claude session):
-- Session creation phrases: "make a new claude session", "spawn a claude session", "open a new claude", "start another claude", "create a claude session", "spin up a claude"
+- Session creation phrases: "make a new session", "spawn a new session", "make a new claude session", "spawn a claude session", "open a new claude", "start another claude", "create a claude session", "spin up a claude"
 - Natural language requests: "write a poem", "explain quantum physics", "help me understand X"
 - Imperative actions without command context: "create a React component", "refactor this code"
 - Creative/analysis tasks: "design a logo", "review my code", "brainstorm ideas"
@@ -225,7 +225,7 @@ Once worktree exists at `../<branch-name>`, spawn with:
 **Example workflow**:
 
 ```
-User: /tribble:run open claude to work on feature-xyz in a new worktree
+User: /tribble:spawn open claude to work on feature-xyz in a new worktree
 
 You: ⚠️  To work in a worktree, we need to create it first.
 
@@ -571,7 +571,7 @@ Fix:
 
 Fix:
 1. Open iTerm2 or Terminal.app
-2. Run /tribble:run again from within that terminal
+2. Run /tribble:spawn again from within that terminal
 ```
 
 ### Not in tmux Session
@@ -581,7 +581,7 @@ Fix:
 
 Fix:
 1. Start tmux: tmux new-session -s tribble
-2. Run /tribble:run again from within tmux
+2. Run /tribble:spawn again from within tmux
 ```
 
 ## Complete Examples
@@ -589,7 +589,7 @@ Fix:
 ### Example 1: Single Claude Session
 
 ```
-User: /tribble:run open claude to refactor the auth module
+User: /tribble:spawn open claude to refactor the auth module
 
 You: I'll spawn a Claude session to help with auth refactoring.
 
@@ -606,7 +606,7 @@ Your session is ready!
 ### Example 2: Multiple Commands
 
 ```
-User: /tribble:run start frontend, backend, and test watcher
+User: /tribble:spawn start frontend, backend, and test watcher
 
 You: What commands should I run for each?
 
@@ -634,7 +634,7 @@ Your sessions are ready!
 ### Example 3: Multiple Claude Sessions
 
 ```
-User: /tribble:run open claude for auth work and another for updating docs
+User: /tribble:spawn open claude for auth work and another for updating docs
 
 You: I'll spawn 2 Claude sessions.
 
@@ -654,7 +654,7 @@ Your sessions are ready!
 ### Example 4: Sequential Tasks (with "then" keyword)
 
 ```
-User: /tribble:run run tests then build
+User: /tribble:spawn run tests then build
 
 You: [Detects "then" keyword in original message]
      [Group 1: tests, Group 2: build]
@@ -695,7 +695,7 @@ All done! All groups spawned successfully.
 ### Example 5: Numbered List (Multiple Sequential Groups)
 
 ```
-User: /tribble:run 1. install deps, 2. run tests, 3. build
+User: /tribble:spawn 1. install deps, 2. run tests, 3. build
 
 You: [Detects numbered list]
      [Group 1: install, Group 2: tests, Group 3: build]
@@ -731,7 +731,7 @@ All done!
 ### Example 6: Worktree Creation (In-Session Setup)
 
 ```
-User: /tribble:run open claude to work on feature-login in a new worktree
+User: /tribble:spawn open claude to work on feature-login in a new worktree
 
 You: [Detects "worktree" keyword - needs worktree setup]
 
@@ -762,7 +762,7 @@ The Claude session will create the worktree at ../feature-login and begin work.
 
 ## Composability
 
-Spawned Claude sessions are full instances with access to all tools, including `/tribble:run`.
+Spawned Claude sessions are full instances with access to all tools, including `/tribble:spawn`.
 
 This means:
 - Sessions can spawn sessions

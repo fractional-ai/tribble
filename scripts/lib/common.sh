@@ -174,3 +174,67 @@ sanitize_tab_name() {
     # Replace forward slashes with hyphens
     echo "$name" | tr -d '"\\' | tr '\n' ' ' | tr '/' '-' | sed 's/  */ /g' | sed 's/^ *//;s/ *$//'
 }
+
+# ============================================================================
+# JSON HELPERS
+# ============================================================================
+
+# Escape a string for JSON output
+# Arguments:
+#   $1 - string to escape
+# Outputs: JSON-safe escaped string (without surrounding quotes)
+json_escape() {
+    local str="$1"
+    # Escape backslashes, quotes, and control characters
+    str="${str//\\/\\\\}"
+    str="${str//\"/\\\"}"
+    str="${str//$'\n'/\\n}"
+    str="${str//$'\r'/\\r}"
+    str="${str//$'\t'/\\t}"
+    echo "$str"
+}
+
+# Start a JSON array
+# Outputs: Opening bracket
+json_array_start() {
+    echo "["
+}
+
+# End a JSON array
+# Outputs: Closing bracket
+json_array_end() {
+    echo "]"
+}
+
+# Create a JSON object for a session
+# Arguments:
+#   $1 - session ID
+#   $2 - name/title
+#   $3 - terminal type
+#   $4 - optional additional fields as "key:value" pairs
+# Outputs: JSON object string
+json_session_object() {
+    local id="$1"
+    local name="$2"
+    local terminal="$3"
+    shift 3
+
+    local id_escaped
+    local name_escaped
+    id_escaped=$(json_escape "$id")
+    name_escaped=$(json_escape "$name")
+
+    local json="{\"id\":\"$id_escaped\",\"name\":\"$name_escaped\",\"terminal\":\"$terminal\""
+
+    # Add any additional fields
+    for field in "$@"; do
+        local key="${field%%:*}"
+        local value="${field#*:}"
+        local value_escaped
+        value_escaped=$(json_escape "$value")
+        json="$json,\"$key\":\"$value_escaped\""
+    done
+
+    json="$json}"
+    echo "$json"
+}
