@@ -46,7 +46,8 @@ if [ $EXIT_CODE -ne 0 ]; then
     fi
 fi
 
-# Send Enter if --enter flag was passed
+# Send Enter after a brief delay if requested
 if [ "$SEND_ENTER" = "true" ]; then
-    kitty @ $KITTY_OPTS send-text --match "id:$SESSION_ID" $'\r' 2>/dev/null
+    sleep 0.1
+    kitty @ $KITTY_OPTS send-text --match "id:$SESSION_ID" $'\r'
 fi

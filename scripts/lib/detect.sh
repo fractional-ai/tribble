@@ -124,43 +124,14 @@ supports_primitive() {
     local terminal="$1"
     local primitive="$2"
 
+    # Only terminals with full primitive support are allowed
     case "$terminal" in
-        tmux)
-            # tmux supports all primitives
+        tmux|kitty|iterm2|terminal)
+            # These support all primitives
             return 0
-            ;;
-        kitty)
-            # kitty supports all primitives via `kitty @` commands
-            return 0
-            ;;
-        iterm2)
-            # iTerm2 supports all primitives via AppleScript
-            return 0
-            ;;
-        terminal)
-            # Terminal.app supports all primitives via AppleScript
-            return 0
-            ;;
-        ghostty|gnome-terminal|alacritty)
-            # These only support spawn
-            if [ "$primitive" = "spawn" ]; then
-                return 0
-            fi
-            return 1
-            ;;
-        konsole|warp|hyper|vscode|windows-terminal)
-            # Limited or no support
-            if [ "$primitive" = "spawn" ]; then
-                # Some have partial spawn support
-                case "$terminal" in
-                    gnome-terminal|alacritty)
-                        return 0
-                        ;;
-                esac
-            fi
-            return 1
             ;;
         *)
+            # All other terminals must use tmux
             return 1
             ;;
     esac
@@ -171,17 +142,27 @@ supports_primitive() {
 #   $1 - primitive name (spawn, read, write, list)
 # Outputs: Space-separated list of terminal names
 list_supported_terminals() {
-    local primitive="$1"
+    # All primitives have the same support - full support only
+    echo "tmux kitty iterm2 terminal"
+}
 
-    case "$primitive" in
-        spawn)
-            echo "tmux kitty iterm2 terminal ghostty gnome-terminal alacritty"
-            ;;
-        read|write|list)
-            echo "tmux kitty iterm2 terminal"
-            ;;
-        *)
-            echo ""
-            ;;
-    esac
+# Show instructions when a terminal is not supported
+# Arguments:
+#   $1 - terminal type
+# Outputs: Helpful instructions to stderr
+show_unsupported_terminal_message() {
+    local terminal="$1"
+
+    echo "[ERROR] Terminal '$terminal' is not supported" >&2
+    echo "" >&2
+    echo "Tribble requires a terminal with full primitive support." >&2
+    echo "" >&2
+    echo "Supported terminals:" >&2
+    echo "  - iTerm2" >&2
+    echo "  - Terminal.app" >&2
+    echo "  - Kitty" >&2
+    echo "  - tmux" >&2
+    echo "" >&2
+    echo "For other terminals, run inside tmux:" >&2
+    echo "  tmux new-session -s work" >&2
 }

@@ -42,12 +42,9 @@ fi
 # Detect terminal
 TERMINAL_TYPE=$(detect_terminal)
 
-# Check if terminal supports read
+# Check if terminal is supported
 if ! supports_primitive "$TERMINAL_TYPE" "read"; then
-    echo "[ERROR] Terminal '$TERMINAL_TYPE' does not support read" >&2
-    echo "" >&2
-    echo "Supported terminals for read:" >&2
-    list_supported_terminals "read" | tr ' ' '\n' | sed 's/^/  - /' >&2
+    show_unsupported_terminal_message "$TERMINAL_TYPE"
     exit 4
 fi
 

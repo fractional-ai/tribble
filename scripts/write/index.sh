@@ -69,12 +69,9 @@ fi
 # Detect terminal
 TERMINAL_TYPE=$(detect_terminal)
 
-# Check if terminal supports write
+# Check if terminal is supported
 if ! supports_primitive "$TERMINAL_TYPE" "write"; then
-    echo "[ERROR] Terminal '$TERMINAL_TYPE' does not support write" >&2
-    echo "" >&2
-    echo "Supported terminals for write:" >&2
-    list_supported_terminals "write" | tr ' ' '\n' | sed 's/^/  - /' >&2
+    show_unsupported_terminal_message "$TERMINAL_TYPE"
     exit 4
 fi
 

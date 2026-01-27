@@ -35,10 +35,10 @@ if ! tmux has-session -t "$SESSION_ID" 2>/dev/null; then
 fi
 
 # Send text to the pane
-# This sends the text literally, without executing it
-tmux send-keys -t "$SESSION_ID" "$TEXT"
-
-# Send Enter if --enter flag was passed
+# Use -l (literal) to send text as-is, then Enter if requested
 if [ "$SEND_ENTER" = "true" ]; then
-    tmux send-keys -t "$SESSION_ID" C-m
+    tmux send-keys -t "$SESSION_ID" -l "$TEXT"
+    tmux send-keys -t "$SESSION_ID" Enter
+else
+    tmux send-keys -t "$SESSION_ID" -l "$TEXT"
 fi

@@ -44,12 +44,9 @@ fi
 # Detect terminal
 TERMINAL_TYPE=$(detect_terminal)
 
-# Check if terminal supports spawn
+# Check if terminal is supported
 if ! supports_primitive "$TERMINAL_TYPE" "spawn"; then
-    echo "[ERROR] Terminal '$TERMINAL_TYPE' does not support spawn" >&2
-    echo "" >&2
-    echo "Supported terminals for spawn:" >&2
-    list_supported_terminals "spawn" | tr ' ' '\n' | sed 's/^/  - /' >&2
+    show_unsupported_terminal_message "$TERMINAL_TYPE"
     exit 4
 fi
 

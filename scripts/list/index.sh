@@ -24,12 +24,9 @@ source "$LIB_DIR/detect.sh"
 # Detect terminal
 TERMINAL_TYPE=$(detect_terminal)
 
-# Check if terminal supports list
+# Check if terminal is supported
 if ! supports_primitive "$TERMINAL_TYPE" "list"; then
-    echo "[ERROR] Terminal '$TERMINAL_TYPE' does not support list" >&2
-    echo "" >&2
-    echo "Supported terminals for list:" >&2
-    list_supported_terminals "list" | tr ' ' '\n' | sed 's/^/  - /' >&2
+    show_unsupported_terminal_message "$TERMINAL_TYPE"
     exit 4
 fi
 

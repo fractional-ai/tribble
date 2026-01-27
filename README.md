@@ -69,12 +69,27 @@ Since spawned sessions can use Tribble too, you can build recursive workflows:
 
 ## Supported Terminals
 
-| Platform | Terminals |
-|----------|-----------|
-| macOS | iTerm2, Terminal.app, Ghostty, Kitty, tmux |
-| Linux | GNOME Terminal, Konsole, Kitty, tmux |
-| Windows | Windows Terminal (WSL), tmux |
-| Any | Alacritty, Warp, Hyper |
+Tribble requires terminals with full primitive support:
+
+- **iTerm2** (macOS)
+- **Terminal.app** (macOS)
+- **Kitty** (cross-platform)
+- **tmux** (cross-platform)
+
+### Other Terminals
+
+For terminals without native support (Ghostty, Alacritty, GNOME Terminal, etc.), run inside tmux:
+
+```bash
+# Install tmux if needed
+brew install tmux        # macOS
+sudo apt install tmux    # Ubuntu/Debian
+
+# Start a tmux session
+tmux new-session -s work
+```
+
+Then use Tribble normally — it will detect tmux and use it for all operations.
 
 ## Troubleshooting
 

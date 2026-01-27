@@ -78,13 +78,15 @@ Use `/tribble:read` first to see what's happening in the session:
 "${CLAUDE_PLUGIN_ROOT}/scripts/write.sh" "tribble:0" "your text here"
 ```
 
-### Step 3: Confirm (Optional)
+### Step 3: Verify the Result
 
-Read again to verify the text was received:
+**Always read after writing** to confirm the text was received and any response:
 
 ```bash
 "${CLAUDE_PLUGIN_ROOT}/scripts/read.sh" "tribble:0"
 ```
+
+**Important**: Don't ask the user to verify - check yourself using the read command. This lets you confirm success and see any responses or errors without requiring the user to switch tabs.
 
 ## Examples
 
@@ -159,6 +161,7 @@ You'll need to switch to that tab and type manually.
 ## Tips
 
 - Always read the session first to understand its state
+- **Always read after writing** to verify success - don't ask the user to check
 - Don't send commands to sessions running processes that don't expect input
 - For tmux, you can send special keys like `C-c` (Ctrl+C) via tmux directly
 - Session IDs from spawn output are essential - save them if you need to interact later
