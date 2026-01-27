@@ -1,5 +1,5 @@
 ---
-description: Spawn new Claude Code sessions or terminal tabs. Use when user wants to "make a new session", "spawn a new session", "make a new claude session", "spawn a claude session", "open a new claude", "start another claude", or run commands in new tabs.
+description: Spawn new Claude Code sessions or terminal tabs. Use when user wants to "start a session", "make a new session", "spawn a new session", "make a new claude session", "spawn a claude session", "open a new claude", "start another claude", or run commands in new tabs.
 allowed-tools: Bash, Read
 ---
 
@@ -42,7 +42,7 @@ When the user provides input, determine if it's a shell command or a Claude prom
 - Git operations: "git worktree", "git checkout", "git clone", etc. (but see Step 1.8 for worktree special handling)
 
 **Claude prompt indicators** (treat as Claude session):
-- Session creation phrases: "make a new session", "spawn a new session", "make a new claude session", "spawn a claude session", "open a new claude", "start another claude", "create a claude session", "spin up a claude"
+- Session creation phrases: "start a session", "make a new session", "spawn a new session", "make a new claude session", "spawn a claude session", "open a new claude", "start another claude", "create a claude session", "spin up a claude"
 - Natural language requests: "write a poem", "explain quantum physics", "help me understand X"
 - Imperative actions without command context: "create a React component", "refactor this code"
 - Creative/analysis tasks: "design a logo", "review my code", "brainstorm ideas"
