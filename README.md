@@ -1,16 +1,27 @@
-# 🐹 Tribble
+# Tribble
 
-Spawn terminal tabs and Claude Code sessions  directly from Claude Code.
+A decentralized orchestrator for Claude Code. Spawn sessions, monitor their output, and send them commands — all from your main session.
 
 ```
 Spawn claude sessions for auth, payments, and docs
 
-✓ Created Session for 'Auth'
-✓ Created Session for  'Payments'
-✓ Created Session for  'Docs'
+✓ Created 'Auth' (session 1)
+✓ Created 'Payments' (session 2)
+✓ Created 'Docs' (session 3)
 ```
 
-Three Claude sessions in three separate tabs. Running in parallel. One command.
+Three Claude sessions. Running in parallel. Orchestrated from one place.
+
+## Primitives
+
+| Command | What it does |
+|---------|--------------|
+| `spawn` | Create new Claude sessions or terminal tabs |
+| `list` | See all running sessions |
+| `read` | Get output from any session |
+| `write` | Send text or commands to any session |
+
+These four primitives let you build orchestration patterns: spawn workers, check their progress, intervene when needed.
 
 ## Install
 
@@ -18,31 +29,52 @@ Three Claude sessions in three separate tabs. Running in parallel. One command.
 curl -fsSL https://raw.githubusercontent.com/fractional-ai/tribble/main/install.sh | bash
 ```
 
-Then restart Claude Code. To skip approval prompts, add `Bash(~/.claude/plugins/tribble/scripts/*)` to your allowed permissions in `~/.claude/settings.json`.
+Restart Claude Code after installing. To skip approval prompts, add `Bash(~/.claude/plugins/tribble/scripts/*)` to your allowed permissions in `~/.claude/settings.json`.
 
 ## Usage
 
-Just ask Claude, or use the slash command:
+### Spawn sessions
 
 ```
-Use tribble to open a claude session for the auth refactor
-Spawn a claude to work on tests while I work on the feature
+Spawn a claude session for the auth refactor
 Start three tabs: frontend, backend, and test watcher
+Make a new session to work on tests
 
-/tribble:run open claude to refactor the auth module
-/tribble:run npm run dev, npm test --watch, docker-compose up
+/tribble:spawn open claude to refactor the auth module
+/tribble:spawn npm run dev, npm test --watch
 ```
 
-Spawned Claude sessions receive context from your current session — with relevant files, current task, and background — so they can start working with the correct context. They can use Tribble too, so complex recursive workflows are supported.
+Spawned Claude sessions receive context from your current session — relevant files, current task, and background — so they hit the ground running.
+
+### Monitor sessions
+
+```
+/tribble:list                  # See all sessions
+/tribble:read 1                # Get output from session 1
+```
+
+### Control sessions
+
+```
+/tribble:write 1 "focus on the edge cases"
+```
+
+### Orchestration patterns
+
+Since spawned sessions can use Tribble too, you can build recursive workflows:
+
+- **Fan-out**: Spawn workers for parallel tasks, read their results
+- **Supervisor**: Monitor multiple sessions, intervene when stuck
+- **Pipeline**: Chain sessions where output of one feeds the next
 
 ## Supported Terminals
 
 | Platform | Terminals |
 |----------|-----------|
-| macOS | iTerm2, Terminal.app, Ghostty, tmux |
-| Linux | GNOME Terminal, Konsole, tmux |
+| macOS | iTerm2, Terminal.app, Ghostty, Kitty, tmux |
+| Linux | GNOME Terminal, Konsole, Kitty, tmux |
 | Windows | Windows Terminal (WSL), tmux |
-| Any | Alacritty, Kitty, Warp, Hyper |
+| Any | Alacritty, Warp, Hyper |
 
 ## Troubleshooting
 
@@ -61,8 +93,6 @@ git clone https://github.com/fractional-ai/tribble.git ~/.claude/plugins/tribble
 chmod +x ~/.claude/plugins/tribble/scripts/*.sh
 ```
 
-Add alias to load automatically: `alias claude='claude --plugin-dir ~/.claude/plugins/tribble'`
-
 ## Update
 
 ```bash
@@ -76,7 +106,5 @@ Report bugs: https://github.com/fractional-ai/tribble/issues
 ---
 
 ![Tribbles multiplying](assets/tribbles.png)
-*"Obviously tribbles are very perceptive creatures, Captain."*   
-— Spock (Star Trek)
-
-
+*"Obviously tribbles are very perceptive creatures, Captain."*
+— Spock
