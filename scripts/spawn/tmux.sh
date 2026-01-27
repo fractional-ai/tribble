@@ -71,6 +71,19 @@ WINDOW_INDEX=$(tmux display-message -t "$SESSION_NAME:$TAB_NAME" -p '#{window_in
 tmux set-window-option -t "$SESSION_NAME:$TAB_NAME" pane-border-style "fg=$HEX_COLOR" 2>/dev/null || true
 tmux set-window-option -t "$SESSION_NAME:$TAB_NAME" pane-active-border-style "fg=$HEX_COLOR" 2>/dev/null || true
 
+# Set window user option for status bar coloring
+tmux set-option -w -t "$SESSION_NAME:$TAB_NAME" @tribble_color "$HEX_COLOR" 2>/dev/null || true
+
+# Enable color-aware status format if not already configured
+# This format applies per-window color from @tribble_color if set
+CURRENT_FORMAT=$(tmux show-options -gv window-status-format 2>/dev/null || echo "")
+if [[ "$CURRENT_FORMAT" != *"@tribble_color"* ]]; then
+    # Format: if @tribble_color is set, use it as foreground color; otherwise use default
+    TRIBBLE_FORMAT='#{?@tribble_color,#[fg=#{@tribble_color}],}#I:#W#{?@tribble_color,#[default],}'
+    tmux set-option -g window-status-format "$TRIBBLE_FORMAT" 2>/dev/null || true
+    tmux set-option -g window-status-current-format "$TRIBBLE_FORMAT" 2>/dev/null || true
+fi
+
 # Send the command to the new window
 tmux send-keys -t "$SESSION_NAME:$TAB_NAME" "$FULL_COMMAND" C-m
 

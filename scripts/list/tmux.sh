@@ -45,7 +45,15 @@ while IFS=$'\t' read -r id name session; do
     name_escaped=$(json_escape "$name")
     session_escaped=$(json_escape "$session")
 
-    echo -n "{\"id\":\"$id_escaped\",\"name\":\"$name_escaped\",\"terminal\":\"tmux\",\"session\":\"$session_escaped\"}"
+    # Check for tribble color on this window
+    color=$(tmux show-options -wv -t "$id" @tribble_color 2>/dev/null || echo "")
+    color_escaped=$(json_escape "$color")
+
+    if [ -n "$color" ]; then
+        echo -n "{\"id\":\"$id_escaped\",\"name\":\"$name_escaped\",\"terminal\":\"tmux\",\"session\":\"$session_escaped\",\"color\":\"$color_escaped\"}"
+    else
+        echo -n "{\"id\":\"$id_escaped\",\"name\":\"$name_escaped\",\"terminal\":\"tmux\",\"session\":\"$session_escaped\"}"
+    fi
 done <<< "$WINDOWS"
 
 echo "]"
