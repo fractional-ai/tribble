@@ -30,12 +30,28 @@ on run argv
             repeat with t in tabs of w
                 repeat with s in sessions of t
                     if id of s is targetSessionId then
-                        -- Write text to the session
-                        if sendEnter is "true" then
-                            write text textToWrite newline YES
-                        else
-                            write text textToWrite newline NO
-                        end if
+                        -- Focus this tab (required for System Events)
+                        select t
+                        delay 0.1
+                        -- Activate iTerm2 window
+                        activate
+                        delay 0.1
+                        -- Use System Events to simulate keyboard input
+                        -- This works with Claude Code TUI unlike write text
+                        tell application "System Events"
+                            tell process "iTerm2"
+                                -- Send ESC first to interrupt any busy process
+                                key code 53
+                                delay 0.1
+                                -- Type the text
+                                keystroke textToWrite
+                                -- Press Enter if requested
+                                if sendEnter is "true" then
+                                    delay 0.1
+                                    key code 36
+                                end if
+                            end tell
+                        end tell
                         return ""
                     end if
                 end repeat
