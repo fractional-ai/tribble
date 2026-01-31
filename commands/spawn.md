@@ -1,5 +1,5 @@
 ---
-description: Spawn new Claude Code sessions or terminal tabs. Use when user wants to "start a session", "make a new session", "spawn a new session", "make a new claude session", "spawn a claude session", "open a new claude", "start another claude", or run commands in new tabs.
+description: Spawn new Claude Code sessions or terminal tabs. Use when user wants to "start a session", "make a new session", "spawn a new session", "make a new claude session", "spawn a claude session", "open a new claude", "start another claude", "open a new tab", "new terminal tab", "new tab for", "create a tab", "spawn in a tab", "open another terminal", "new tmux window", "new iterm tab", "parallel session", "open an agent", "spin up an agent", "start an agent", or run commands in new tabs. NOT for subagents - this creates actual terminal tabs/windows.
 allowed-tools: Bash, Read
 ---
 
@@ -285,7 +285,21 @@ Use this mode when NO sequential keywords were detected. Spawn all tasks immedia
 **For each task, spawn immediately using the unified spawn script** (after any worktree setup from Step 1.8):
 
 ```bash
-"${CLAUDE_PLUGIN_ROOT}/scripts/spawn.sh" "[tab_name]" "[command]" "[directory]" "[prompt_if_claude]"
+# POSITIONAL ARGUMENTS ONLY - no flags like --prompt or --name
+"${CLAUDE_PLUGIN_ROOT}/scripts/spawn.sh" "<tab_name>" "<command>" "<directory>" "[prompt]" "[color]"
+```
+
+**Arguments (positional, in order)**:
+1. `tab_name` - Name for the tab (required)
+2. `command` - Command to run, e.g. "claude" or "npm test" (required)
+3. `directory` - Working directory path (required)
+4. `prompt` - Optional prompt to pipe to command
+5. `color` - Optional tab color
+
+**Example**:
+```bash
+# Spawn a Claude session with a prompt
+"${CLAUDE_PLUGIN_ROOT}/scripts/spawn.sh" "Auth Work" "claude" "/Users/me/project" "Help me with authentication"
 ```
 
 The unified spawn script automatically detects the terminal type and spawns the tab accordingly. It supports: iTerm2, Terminal.app, Ghostty, tmux, GNOME Terminal, Konsole, Alacritty, Kitty, Warp, Hyper, Windows Terminal, and VS Code.
