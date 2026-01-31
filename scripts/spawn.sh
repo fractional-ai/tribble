@@ -1,13 +1,15 @@
 #!/usr/bin/env bash
 # Unified spawn script - thin wrapper that delegates to spawn/index.sh
-# Usage: spawn.sh <tab_name> <command> <directory> [prompt] [color]
 #
-# Arguments:
-#   tab_name   - Descriptive name for the tab
-#   command    - Command to execute in the tab
-#   directory  - Working directory (absolute path)
-#   prompt     - Optional: Initial prompt/input to pipe into the command
-#   color      - Optional: Tab color (auto-assigned if not specified)
+# Usage:
+#   spawn.sh "Your prompt here"              # Claude session (common case)
+#   spawn.sh --cmd "npm test"                # Shell command
+#
+# Optional flags:
+#   --name "Tab Name"    Tab name (auto-generated from prompt if not provided)
+#   --dir /path          Working directory (defaults to current)
+#   --color red          Tab color (auto-assigned if not provided)
+#   --cmd "command"      Run shell command instead of Claude
 #
 # Exit codes:
 #   0 - Success

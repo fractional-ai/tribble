@@ -285,21 +285,31 @@ Use this mode when NO sequential keywords were detected. Spawn all tasks immedia
 **For each task, spawn immediately using the unified spawn script** (after any worktree setup from Step 1.8):
 
 ```bash
-# POSITIONAL ARGUMENTS ONLY - no flags like --prompt or --name
-"${CLAUDE_PLUGIN_ROOT}/scripts/spawn.sh" "<tab_name>" "<command>" "<directory>" "[prompt]" "[color]"
+# Claude session (common case) - just provide the prompt
+"${CLAUDE_PLUGIN_ROOT}/scripts/spawn.sh" "Your prompt here"
+
+# Shell command - use --cmd flag
+"${CLAUDE_PLUGIN_ROOT}/scripts/spawn.sh" --cmd "npm test"
 ```
 
-**Arguments (positional, in order)**:
-1. `tab_name` - Name for the tab (required)
-2. `command` - Command to run, e.g. "claude" or "npm test" (required)
-3. `directory` - Working directory path (required)
-4. `prompt` - Optional prompt to pipe to command
-5. `color` - Optional tab color
+**Optional flags** (work with either):
+- `--name "Tab Name"` - Tab name (auto-generated from prompt if not provided)
+- `--dir /path` - Working directory (defaults to current)
+- `--color red` - Tab color (auto-assigned if not provided)
 
-**Example**:
+**Examples**:
 ```bash
-# Spawn a Claude session with a prompt
-"${CLAUDE_PLUGIN_ROOT}/scripts/spawn.sh" "Auth Work" "claude" "/Users/me/project" "Help me with authentication"
+# Simple Claude session
+"${CLAUDE_PLUGIN_ROOT}/scripts/spawn.sh" "Help me with authentication"
+
+# Claude session with custom name
+"${CLAUDE_PLUGIN_ROOT}/scripts/spawn.sh" "Help me with authentication" --name "Auth Work"
+
+# Shell command
+"${CLAUDE_PLUGIN_ROOT}/scripts/spawn.sh" --cmd "npm test"
+
+# Shell command with name and directory
+"${CLAUDE_PLUGIN_ROOT}/scripts/spawn.sh" --cmd "npm run dev" --name "Dev Server" --dir /path/to/project
 ```
 
 The unified spawn script automatically detects the terminal type and spawns the tab accordingly. It supports: iTerm2, Terminal.app, Ghostty, tmux, GNOME Terminal, Konsole, Alacritty, Kitty, Warp, Hyper, Windows Terminal, and VS Code.
@@ -488,7 +498,7 @@ Working on fixing authentication bug where JWT tokens aren't being validated cor
 ## Task
 Write comprehensive tests for the JWT validation logic in src/auth.ts to ensure tokens are validated correctly."
 
-"${CLAUDE_PLUGIN_ROOT}/scripts/spawn.sh" "Auth Tests" "claude" "/Users/me/project" "$PROMPT"
+"${CLAUDE_PLUGIN_ROOT}/scripts/spawn.sh" "$PROMPT" --name "Auth Tests"
 ```
 
 The spawn script automatically pipes the enhanced prompt to Claude via stdin.
@@ -498,7 +508,7 @@ The spawn script automatically pipes the enhanced prompt to Claude via stdin.
 For commands with quotes, pipes, or special characters:
 
 ```bash
-"${CLAUDE_PLUGIN_ROOT}/scripts/spawn.sh" "Complex Task" "npm test && npm run lint" "/path/to/dir"
+"${CLAUDE_PLUGIN_ROOT}/scripts/spawn.sh" --cmd "npm test && npm run lint" --name "Complex Task" --dir "/path/to/dir"
 ```
 
 The spawn script handles proper quoting and escaping.
@@ -508,7 +518,7 @@ The spawn script handles proper quoting and escaping.
 Commands that need user input work fine - they'll prompt in their own tab:
 
 ```bash
-"${CLAUDE_PLUGIN_ROOT}/scripts/spawn.sh" "Deploy" "npm run deploy" "/path/to/dir"
+"${CLAUDE_PLUGIN_ROOT}/scripts/spawn.sh" --cmd "npm run deploy" --name "Deploy" --dir "/path/to/dir"
 ```
 
 ### Long Commands
@@ -607,7 +617,7 @@ User: /tribble:spawn open claude to refactor the auth module
 
 You: I'll spawn a Claude session to help with auth refactoring.
 
-[Run: "${CLAUDE_PLUGIN_ROOT}/scripts/spawn.sh" "Refactor Auth Module" "claude" "/Users/me/project" "Help me refactor the authentication module"]
+[Run: "${CLAUDE_PLUGIN_ROOT}/scripts/spawn.sh" "Help me refactor the authentication module" --name "Refactor Auth Module"]
 
 [1/1] ✓ Tab 'Refactor Auth Module' created
 
@@ -628,13 +638,13 @@ User: npm run dev:frontend, npm run dev:backend, npm test:watch
 
 You: I'll spawn 3 tabs for your development workflow.
 
-[Run: "${CLAUDE_PLUGIN_ROOT}/scripts/spawn.sh" "Frontend" "npm run dev:frontend" "/Users/me/project"]
+[Run: "${CLAUDE_PLUGIN_ROOT}/scripts/spawn.sh" --cmd "npm run dev:frontend" --name "Frontend"]
 [1/3] ✓ Tab 'Frontend' created
 
-[Run: "${CLAUDE_PLUGIN_ROOT}/scripts/spawn.sh" "Backend" "npm run dev:backend" "/Users/me/project"]
+[Run: "${CLAUDE_PLUGIN_ROOT}/scripts/spawn.sh" --cmd "npm run dev:backend" --name "Backend"]
 [2/3] ✓ Tab 'Backend' created
 
-[Run: "${CLAUDE_PLUGIN_ROOT}/scripts/spawn.sh" "Test Watcher" "npm test:watch" "/Users/me/project"]
+[Run: "${CLAUDE_PLUGIN_ROOT}/scripts/spawn.sh" --cmd "npm test:watch" --name "Test Watcher"]
 [3/3] ✓ Tab 'Test Watcher' created
 
 ✓ Created 3 tabs:
@@ -652,10 +662,10 @@ User: /tribble:spawn open claude for auth work and another for updating docs
 
 You: I'll spawn 2 Claude sessions.
 
-[Run: "${CLAUDE_PLUGIN_ROOT}/scripts/spawn.sh" "Auth Work" "claude" "/Users/me/project" "Help me work on the authentication system"]
+[Run: "${CLAUDE_PLUGIN_ROOT}/scripts/spawn.sh" "Help me work on the authentication system" --name "Auth Work"]
 [1/2] ✓ Tab 'Auth Work' created
 
-[Run: "${CLAUDE_PLUGIN_ROOT}/scripts/spawn.sh" "Update Docs" "claude" "/Users/me/project" "Help me update the documentation"]
+[Run: "${CLAUDE_PLUGIN_ROOT}/scripts/spawn.sh" "Help me update the documentation" --name "Update Docs"]
 [2/2] ✓ Tab 'Update Docs' created
 
 ✓ Created 2 tabs:
@@ -677,7 +687,7 @@ You: [Detects "then" keyword in original message]
      I'll spawn the tests first, then the build after they complete.
 
 [Spawn Group 1 only]
-[Run: "${CLAUDE_PLUGIN_ROOT}/scripts/spawn.sh" "Run Tests" "npm test" "/Users/me/project"]
+[Run: "${CLAUDE_PLUGIN_ROOT}/scripts/spawn.sh" --cmd "npm test" --name "Run Tests"]
 [1/1] ✓ Tab 'Run Tests' created
 
 ✓ Created 1 tab (Group 1 of 2):
@@ -697,7 +707,7 @@ User: done
 
 You: Great! Spawning Group 2 now...
 
-[Run: "${CLAUDE_PLUGIN_ROOT}/scripts/spawn.sh" "Build Project" "npm run build" "/Users/me/project"]
+[Run: "${CLAUDE_PLUGIN_ROOT}/scripts/spawn.sh" --cmd "npm run build" --name "Build Project"]
 [1/1] ✓ Tab 'Build Project' created
 
 ✓ Created 1 tab (Group 2 of 2):
@@ -762,7 +772,7 @@ Steps:
 
 Current context: Working on authentication system in main codebase."
 
-[Run: "${CLAUDE_PLUGIN_ROOT}/scripts/spawn.sh" "Feature Login Worktree" "claude" "/Users/me/project" "$PROMPT"]
+[Run: "${CLAUDE_PLUGIN_ROOT}/scripts/spawn.sh" "$PROMPT" --name "Feature Login Worktree"]
 
 [1/1] ✓ Tab 'Feature Login Worktree' created
 
