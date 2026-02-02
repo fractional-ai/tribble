@@ -1,27 +1,16 @@
 # Tribble
 
-A decentralized orchestrator for Claude Code. Spawn sessions, monitor their output, and send them commands — all from your main session.
+A Claude Code plugin that spawns sessions in new terminal tabs.
 
 ```
-Spawn claude sessions for auth, payments, and docs
+You: "Spawn claude sessions for auth, payments, and docs"
 
-✓ Created 'Auth' (session 1)
-✓ Created 'Payments' (session 2)
-✓ Created 'Docs' (session 3)
+✓ Created 'Auth'
+✓ Created 'Payments'
+✓ Created 'Docs'
 ```
 
-Three Claude sessions. Running in parallel. Orchestrated from one place.
-
-## Primitives
-
-| Command | What it does |
-|---------|--------------|
-| `spawn` | Create new Claude sessions or terminal tabs |
-| `list` | See all running sessions |
-| `read` | Get output from any session |
-| `write` | Send text or commands to any session |
-
-These four primitives let you build orchestration patterns: spawn workers, check their progress, intervene when needed.
+Three Claude sessions running in parallel. Like tribbles multiplying.
 
 ## Install
 
@@ -33,70 +22,48 @@ Restart Claude Code after installing. To skip approval prompts, add `Bash(~/.cla
 
 ## Usage
 
-### Spawn sessions
+Tell Claude what you want to spawn using natural language:
 
 ```
-Spawn a claude session for the auth refactor
-Start three tabs: frontend, backend, and test watcher
-Make a new session to work on tests
+"Spawn a claude session for the auth refactor"
+"Start three tabs: frontend, backend, and test watcher"
+"Open claude to work on tests"
+```
 
+Or use the slash command directly:
+
+```
 /tribble:spawn open claude to refactor the auth module
 /tribble:spawn npm run dev, npm test --watch
 ```
 
-Spawned Claude sessions receive context from your current session — relevant files, current task, and background — so they hit the ground running.
-
-### Monitor sessions
-
-```
-/tribble:list                  # See all sessions
-/tribble:read 1                # Get output from session 1
-```
-
-### Control sessions
-
-```
-/tribble:write 1 "focus on the edge cases"
-```
-
-### Orchestration patterns
-
-Since spawned sessions can use Tribble too, you can build recursive workflows:
-
-- **Fan-out**: Spawn workers for parallel tasks, read their results
-- **Supervisor**: Monitor multiple sessions, intervene when stuck
-- **Pipeline**: Chain sessions where output of one feeds the next
+When spawning Claude sessions, the new session receives context about what you're working on.
 
 ## Supported Terminals
 
-Tribble requires terminals with full primitive support:
+| Platform | Terminals |
+|----------|-----------|
+| **macOS** | iTerm2, Terminal.app, Ghostty, Kitty, Alacritty, tmux |
+| **Linux** | GNOME Terminal, Kitty, Alacritty, tmux |
+| **Windows (WSL)** | Windows Terminal, Kitty, Alacritty, tmux |
 
-- **iTerm2** (macOS)
-- **Terminal.app** (macOS)
-- **Kitty** (cross-platform)
-- **tmux** (cross-platform)
-
-### Other Terminals
-
-For terminals without native support (Ghostty, Alacritty, GNOME Terminal, etc.), run inside tmux:
-
-```bash
-# Install tmux if needed
-brew install tmux        # macOS
-sudo apt install tmux    # Ubuntu/Debian
-
-# Start a tmux session
-tmux new-session -s work
+**Kitty** requires remote control enabled in `~/.config/kitty/kitty.conf`:
+```
+allow_remote_control yes
 ```
 
-Then use Tribble normally — it will detect tmux and use it for all operations.
+For unsupported terminals (VS Code integrated terminal, etc.), run inside tmux:
+
+```bash
+tmux new-session -s work
+```
 
 ## Troubleshooting
 
 | Problem | Fix |
 |---------|-----|
 | "Not authorized to send Apple events" | System Preferences → Security → Automation → Enable |
-| Tabs don't spawn | `chmod +x ~/.claude/plugins/tribble/scripts/*.sh` |
+| Tabs don't spawn | `find ~/.claude/plugins/tribble/scripts -name "*.sh" -exec chmod +x {} \;` |
 | "Not in a tmux session" | Start tmux first: `tmux new-session -s work` |
 
 Run `./scripts/validate-installation.sh` to diagnose issues.
@@ -105,7 +72,7 @@ Run `./scripts/validate-installation.sh` to diagnose issues.
 
 ```bash
 git clone https://github.com/fractional-ai/tribble.git ~/.claude/plugins/tribble
-chmod +x ~/.claude/plugins/tribble/scripts/*.sh
+find ~/.claude/plugins/tribble/scripts -name "*.sh" -exec chmod +x {} \;
 ```
 
 ## Update
@@ -117,9 +84,3 @@ cd ~/.claude/plugins/tribble && git pull
 ## Issues
 
 Report bugs: https://github.com/fractional-ai/tribble/issues
-
----
-
-![Tribbles multiplying](assets/tribbles.png)
-*"Obviously tribbles are very perceptive creatures, Captain."*
-— Spock

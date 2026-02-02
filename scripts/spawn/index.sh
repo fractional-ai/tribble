@@ -119,7 +119,7 @@ fi
 TERMINAL_TYPE=$(detect_terminal)
 
 # Check if terminal is supported
-if ! supports_primitive "$TERMINAL_TYPE" "spawn"; then
+if ! is_terminal_supported "$TERMINAL_TYPE"; then
     show_unsupported_terminal_message "$TERMINAL_TYPE"
     exit 4
 fi

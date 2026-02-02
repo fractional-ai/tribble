@@ -113,37 +113,29 @@ detect_terminal() {
     return 0
 }
 
-# Check if a terminal supports a specific primitive
+# Check if a terminal is supported for spawning
 # Arguments:
 #   $1 - terminal type (from detect_terminal)
-#   $2 - primitive name (spawn, read, write, list)
 # Returns:
 #   0 - Supported
 #   1 - Not supported
-supports_primitive() {
+is_terminal_supported() {
     local terminal="$1"
-    local primitive="$2"
 
-    # Only terminals with full primitive support are allowed
     case "$terminal" in
-        tmux|kitty|iterm2|terminal)
-            # These support all primitives
+        tmux|kitty|iterm2|terminal|ghostty|alacritty|gnome-terminal|windows-terminal)
             return 0
             ;;
         *)
-            # All other terminals must use tmux
             return 1
             ;;
     esac
 }
 
-# Get list of terminals that support a primitive
-# Arguments:
-#   $1 - primitive name (spawn, read, write, list)
+# Get list of supported terminals
 # Outputs: Space-separated list of terminal names
 list_supported_terminals() {
-    # All primitives have the same support - full support only
-    echo "tmux kitty iterm2 terminal"
+    echo "tmux kitty iterm2 terminal ghostty alacritty gnome-terminal windows-terminal"
 }
 
 # Show instructions when a terminal is not supported
@@ -155,14 +147,16 @@ show_unsupported_terminal_message() {
 
     echo "[ERROR] Terminal '$terminal' is not supported" >&2
     echo "" >&2
-    echo "Tribble requires a terminal with full primitive support." >&2
-    echo "" >&2
     echo "Supported terminals:" >&2
-    echo "  - iTerm2" >&2
-    echo "  - Terminal.app" >&2
-    echo "  - Kitty" >&2
-    echo "  - tmux" >&2
+    echo "  - iTerm2 (macOS)" >&2
+    echo "  - Terminal.app (macOS)" >&2
+    echo "  - Ghostty (macOS)" >&2
+    echo "  - Kitty (cross-platform)" >&2
+    echo "  - tmux (cross-platform)" >&2
+    echo "  - Alacritty (cross-platform)" >&2
+    echo "  - GNOME Terminal (Linux)" >&2
+    echo "  - Windows Terminal (WSL)" >&2
     echo "" >&2
-    echo "For other terminals, run inside tmux:" >&2
+    echo "For unsupported terminals, run inside tmux:" >&2
     echo "  tmux new-session -s work" >&2
 }

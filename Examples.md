@@ -9,16 +9,15 @@ Like tribbles, your sessions multiply rapidly.
 - [Single Sessions](#single-sessions)
 - [Multiple Tasks](#multiple-tasks)
 - [Development Workflows](#development-workflows)
-- [Testing & CI/CD](#testing--cicd)
 
 ## Single Sessions
 
-All single-session examples spawn in ~5 seconds with 0 questions.
+All single-session examples spawn with 0 questions.
 
 ### Open Claude for Feature Work
 
 ```
-You: /tribble:run open claude to add dark mode
+You: /tribble:spawn open claude to add dark mode
 
 Claude: ✓ Created tab 'Add Dark Mode'
         Your session is ready!
@@ -27,7 +26,7 @@ Claude: ✓ Created tab 'Add Dark Mode'
 ### Run Tests
 
 ```
-You: /tribble:run run tests
+You: /tribble:spawn run tests
 
 Claude: ✓ Created tab 'Run Tests'
         Running npm test in /current/dir
@@ -36,7 +35,7 @@ Claude: ✓ Created tab 'Run Tests'
 ### Start Dev Server
 
 ```
-You: /tribble:run start dev server
+You: /tribble:spawn start dev server
 
 Claude: ✓ Created tab 'Dev Server'
         Running npm run dev in /current/dir
@@ -45,7 +44,7 @@ Claude: ✓ Created tab 'Dev Server'
 ### Run Build
 
 ```
-You: /tribble:run build the project
+You: /tribble:spawn build the project
 
 Claude: ✓ Created tab 'Build Project'
         Running npm run build in /current/dir
@@ -54,7 +53,7 @@ Claude: ✓ Created tab 'Build Project'
 ### Start Docker Container
 
 ```
-You: /tribble:run start postgres
+You: /tribble:spawn start postgres
 
 Claude: ✓ Created tab 'Start Postgres'
         Running docker-compose up postgres in /current/dir
@@ -62,12 +61,12 @@ Claude: ✓ Created tab 'Start Postgres'
 
 ## Multiple Tasks
 
-All tasks spawn immediately in parallel after 1 question max (~10 seconds total).
+All tasks spawn immediately in parallel after 1 question max.
 
 ### Development Servers
 
 ```
-You: /tribble:run start frontend, backend, and database
+You: /tribble:spawn start frontend, backend, and database
 
 Claude: What commands should I run?
 
@@ -80,12 +79,12 @@ Claude: ✓ Created tab 'Frontend'
         Your sessions are ready!
 ```
 
-**Result:** Three servers running in parallel, ready in ~10 seconds.
+**Result:** Three servers running in parallel.
 
 ### Multiple Claude Sessions
 
 ```
-You: /tribble:run open claude for auth work and another for updating docs
+You: /tribble:spawn open claude for auth work and another for updating docs
 
 Claude: ✓ Created tab 'Auth Work'
         ✓ Created tab 'Update Docs'
@@ -98,7 +97,7 @@ Claude: ✓ Created tab 'Auth Work'
 ### Test Suite
 
 ```
-You: /tribble:run run frontend tests, backend tests, and integration tests
+You: /tribble:spawn run frontend tests, backend tests, and integration tests
 
 Claude: What commands?
 
@@ -120,7 +119,7 @@ Claude: ✓ Created tab 'Frontend Tests'
 **Scenario:** Complete dev environment with multiple services
 
 ```
-You: /tribble:run start frontend on 3000, backend on 4000, postgres, redis, and tail logs
+You: /tribble:spawn start frontend on 3000, backend on 4000, postgres, redis, and tail logs
 
 Claude: What commands?
 
@@ -135,14 +134,14 @@ Claude: ✓ Created tab 'Frontend'
         Your sessions are ready!
 ```
 
-**Result:** Complete dev environment in ~10 seconds. All services running in parallel.
+**Result:** Complete dev environment. All services running in parallel.
 
 ### Microservices Development
 
 **Scenario:** Start 5 microservices
 
 ```
-You: /tribble:run start auth service, user service, order service, payment service, and notification service
+You: /tribble:spawn start auth service, user service, order service, payment service, and notification service
 
 Claude: What commands?
 
@@ -164,7 +163,7 @@ Claude: ✓ Created tab 'Auth Service'
 **Scenario:** Work on different projects simultaneously
 
 ```
-You: /tribble:run open claude in ~/project-a to fix API and another in ~/project-b to update tests
+You: /tribble:spawn open claude in ~/project-a to fix API and another in ~/project-b to update tests
 
 Claude: ✓ Created tab 'Fix API' (project-a)
         ✓ Created tab 'Update Tests' (project-b)
@@ -173,80 +172,6 @@ Claude: ✓ Created tab 'Fix API' (project-a)
 ```
 
 **Result:** Two Claude sessions in different directories.
-
-## Testing & CI/CD
-
-### Parallel Test Suites
-
-```
-You: /tribble:run run all test suites in parallel
-
-Claude: What commands?
-
-You: npm run test:unit, npm run test:integration, npm run test:e2e
-
-Claude: ✓ Created tab 'Unit Tests'
-        ✓ Created tab 'Integration Tests'
-        ✓ Created tab 'E2E Tests'
-
-        Your sessions are ready!
-```
-
-**Result:** All tests running in parallel. Saves 10-15 minutes compared to sequential.
-
-### Lint and Type Check
-
-```
-You: /tribble:run run eslint and typescript checks
-
-Claude: What commands?
-
-You: npm run lint, npm run type-check
-
-Claude: ✓ Created tab 'ESLint'
-        ✓ Created tab 'Type Check'
-
-        Your sessions are ready!
-```
-
-**Result:** Both running in parallel.
-
-### Build Variants
-
-```
-You: /tribble:run build for dev, staging, and production
-
-Claude: What commands?
-
-You: npm run build:dev, npm run build:staging, npm run build:prod
-
-Claude: ✓ Created tab 'Build Dev'
-        ✓ Created tab 'Build Staging'
-        ✓ Created tab 'Build Prod'
-
-        Your sessions are ready!
-```
-
-**Result:** All builds running in parallel.
-
-## Note on Dependencies
-
-If tasks depend on each other (e.g., "run tests then build"), spawn them all and run them manually in order:
-
-```
-You: /tribble:run spawn tabs for tests and build
-
-Claude: What commands?
-
-You: npm test, npm run build
-
-Claude: ✓ Created tab 'Tests'
-        ✓ Created tab 'Build'
-
-        Your sessions are ready!
-```
-
-Then switch to the Tests tab, run tests, and when they pass, switch to the Build tab and run the build. Like tribbles multiplying, Tribble spawns tabs quickly - you control when to start each one.
 
 ## Tips for Fast Spawning
 

@@ -41,86 +41,35 @@ else
 fi
 echo ""
 
-# supports_primitive - tmux
-echo "supports_primitive (tmux)"
-echo "-------------------------"
-supports_primitive "tmux" "spawn" && pass_test "tmux supports spawn" || fail_test "tmux spawn" "supported" "unsupported"
-supports_primitive "tmux" "read" && pass_test "tmux supports read" || fail_test "tmux read" "supported" "unsupported"
-supports_primitive "tmux" "write" && pass_test "tmux supports write" || fail_test "tmux write" "supported" "unsupported"
-supports_primitive "tmux" "list" && pass_test "tmux supports list" || fail_test "tmux list" "supported" "unsupported"
+# is_terminal_supported - supported terminals
+echo "is_terminal_supported (supported terminals)"
+echo "--------------------------------------------"
+is_terminal_supported "tmux" && pass_test "tmux is supported" || fail_test "tmux" "supported" "unsupported"
+is_terminal_supported "kitty" && pass_test "kitty is supported" || fail_test "kitty" "supported" "unsupported"
+is_terminal_supported "iterm2" && pass_test "iterm2 is supported" || fail_test "iterm2" "supported" "unsupported"
+is_terminal_supported "terminal" && pass_test "terminal is supported" || fail_test "terminal" "supported" "unsupported"
+is_terminal_supported "ghostty" && pass_test "ghostty is supported" || fail_test "ghostty" "supported" "unsupported"
+is_terminal_supported "alacritty" && pass_test "alacritty is supported" || fail_test "alacritty" "supported" "unsupported"
+is_terminal_supported "gnome-terminal" && pass_test "gnome-terminal is supported" || fail_test "gnome-terminal" "supported" "unsupported"
+is_terminal_supported "windows-terminal" && pass_test "windows-terminal is supported" || fail_test "windows-terminal" "supported" "unsupported"
 echo ""
 
-# supports_primitive - kitty
-echo "supports_primitive (kitty)"
-echo "--------------------------"
-supports_primitive "kitty" "spawn" && pass_test "kitty supports spawn" || fail_test "kitty spawn" "supported" "unsupported"
-supports_primitive "kitty" "read" && pass_test "kitty supports read" || fail_test "kitty read" "supported" "unsupported"
-supports_primitive "kitty" "write" && pass_test "kitty supports write" || fail_test "kitty write" "supported" "unsupported"
-supports_primitive "kitty" "list" && pass_test "kitty supports list" || fail_test "kitty list" "supported" "unsupported"
-echo ""
-
-# supports_primitive - iterm2
-echo "supports_primitive (iterm2)"
-echo "---------------------------"
-supports_primitive "iterm2" "spawn" && pass_test "iterm2 supports spawn" || fail_test "iterm2 spawn" "supported" "unsupported"
-supports_primitive "iterm2" "read" && pass_test "iterm2 supports read" || fail_test "iterm2 read" "supported" "unsupported"
-supports_primitive "iterm2" "write" && pass_test "iterm2 supports write" || fail_test "iterm2 write" "supported" "unsupported"
-supports_primitive "iterm2" "list" && pass_test "iterm2 supports list" || fail_test "iterm2 list" "supported" "unsupported"
-echo ""
-
-# supports_primitive - terminal
-echo "supports_primitive (terminal)"
-echo "-----------------------------"
-supports_primitive "terminal" "spawn" && pass_test "terminal supports spawn" || fail_test "terminal spawn" "supported" "unsupported"
-supports_primitive "terminal" "read" && pass_test "terminal supports read" || fail_test "terminal read" "supported" "unsupported"
-supports_primitive "terminal" "write" && pass_test "terminal supports write" || fail_test "terminal write" "supported" "unsupported"
-supports_primitive "terminal" "list" && pass_test "terminal supports list" || fail_test "terminal list" "supported" "unsupported"
-echo ""
-
-# supports_primitive - limited terminals (spawn only)
-echo "supports_primitive (limited terminals)"
-echo "--------------------------------------"
-supports_primitive "ghostty" "spawn" && pass_test "ghostty supports spawn" || fail_test "ghostty spawn" "supported" "unsupported"
-supports_primitive "ghostty" "read" && fail_test "ghostty read" "unsupported" "supported" || pass_test "ghostty correctly rejects read"
-supports_primitive "ghostty" "write" && fail_test "ghostty write" "unsupported" "supported" || pass_test "ghostty correctly rejects write"
-supports_primitive "ghostty" "list" && fail_test "ghostty list" "unsupported" "supported" || pass_test "ghostty correctly rejects list"
-
-supports_primitive "alacritty" "spawn" && pass_test "alacritty supports spawn" || fail_test "alacritty spawn" "supported" "unsupported"
-supports_primitive "alacritty" "read" && fail_test "alacritty read" "unsupported" "supported" || pass_test "alacritty correctly rejects read"
-
-supports_primitive "gnome-terminal" "spawn" && pass_test "gnome-terminal supports spawn" || fail_test "gnome-terminal spawn" "supported" "unsupported"
-supports_primitive "gnome-terminal" "read" && fail_test "gnome-terminal read" "unsupported" "supported" || pass_test "gnome-terminal correctly rejects read"
-echo ""
-
-# supports_primitive - unknown terminal
-echo "supports_primitive (unknown)"
-echo "----------------------------"
-supports_primitive "unknown" "spawn" && fail_test "unknown spawn" "unsupported" "supported" || pass_test "unknown correctly rejects spawn"
-supports_primitive "unknown" "read" && fail_test "unknown read" "unsupported" "supported" || pass_test "unknown correctly rejects read"
+# is_terminal_supported - unsupported terminals
+echo "is_terminal_supported (unsupported terminals)"
+echo "----------------------------------------------"
+is_terminal_supported "unknown" && fail_test "unknown" "unsupported" "supported" || pass_test "unknown correctly rejected"
+is_terminal_supported "vscode" && fail_test "vscode" "unsupported" "supported" || pass_test "vscode correctly rejected"
+is_terminal_supported "warp" && fail_test "warp" "unsupported" "supported" || pass_test "warp correctly rejected"
 echo ""
 
 # list_supported_terminals
 echo "list_supported_terminals"
 echo "------------------------"
-result=$(list_supported_terminals "spawn")
-if echo "$result" | grep -q "tmux" && echo "$result" | grep -q "kitty" && echo "$result" | grep -q "iterm2"; then
-    pass_test "spawn list includes tmux, kitty, iterm2"
+result=$(list_supported_terminals)
+if echo "$result" | grep -q "tmux" && echo "$result" | grep -q "kitty" && echo "$result" | grep -q "iterm2" && echo "$result" | grep -q "ghostty" && echo "$result" | grep -q "alacritty"; then
+    pass_test "list includes all supported terminals"
 else
-    fail_test "spawn list" "tmux kitty iterm2 ..." "$result"
-fi
-
-result=$(list_supported_terminals "read")
-if echo "$result" | grep -q "tmux" && echo "$result" | grep -q "kitty"; then
-    pass_test "read list includes tmux, kitty"
-else
-    fail_test "read list" "tmux kitty ..." "$result"
-fi
-
-# Should not include ghostty/alacritty/gnome-terminal in read list
-if echo "$result" | grep -qv "ghostty"; then
-    pass_test "read list excludes ghostty"
-else
-    fail_test "read list exclusion" "no ghostty" "includes ghostty"
+    fail_test "list_supported_terminals" "all terminals" "$result"
 fi
 echo ""
 

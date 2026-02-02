@@ -79,55 +79,10 @@ for script in "$PARENT_DIR/scripts/spawn"/*.sh; do
 done
 echo ""
 
-# Test 4: Script syntax validation - read/
-echo "Test 4: Script Syntax Validation (read/)"
-echo "-----------------------------------------"
-for script in "$PARENT_DIR/scripts/read"/*.sh; do
-    if [ -f "$script" ]; then
-        script_name=$(basename "$script")
-        if bash -n "$script" 2>/dev/null; then
-            pass_test "Syntax valid: read/$script_name"
-        else
-            fail_test "Syntax error in read/$script_name" "Run: bash -n $script"
-        fi
-    fi
-done
-echo ""
-
-# Test 5: Script syntax validation - write/
-echo "Test 5: Script Syntax Validation (write/)"
-echo "------------------------------------------"
-for script in "$PARENT_DIR/scripts/write"/*.sh; do
-    if [ -f "$script" ]; then
-        script_name=$(basename "$script")
-        if bash -n "$script" 2>/dev/null; then
-            pass_test "Syntax valid: write/$script_name"
-        else
-            fail_test "Syntax error in write/$script_name" "Run: bash -n $script"
-        fi
-    fi
-done
-echo ""
-
-# Test 6: Script syntax validation - list/
-echo "Test 6: Script Syntax Validation (list/)"
-echo "-----------------------------------------"
-for script in "$PARENT_DIR/scripts/list"/*.sh; do
-    if [ -f "$script" ]; then
-        script_name=$(basename "$script")
-        if bash -n "$script" 2>/dev/null; then
-            pass_test "Syntax valid: list/$script_name"
-        else
-            fail_test "Syntax error in list/$script_name" "Run: bash -n $script"
-        fi
-    fi
-done
-echo ""
-
-# Test 7: Scripts are executable
-echo "Test 7: Script Executability"
+# Test 4: Scripts are executable
+echo "Test 4: Script Executability"
 echo "-----------------------------"
-for dir in "" "/lib" "/spawn" "/read" "/write" "/list"; do
+for dir in "" "/lib" "/spawn"; do
     for script in "$PARENT_DIR/scripts$dir"/*.sh; do
         if [ -f "$script" ]; then
             script_name="${dir#/}/$(basename "$script")"
@@ -142,8 +97,8 @@ for dir in "" "/lib" "/spawn" "/read" "/write" "/list"; do
 done
 echo ""
 
-# Test 8: Spawn router validation - Missing arguments
-echo "Test 8: Spawn Router Validation - Missing Arguments"
+# Test 5: Spawn router validation - Missing arguments
+echo "Test 5: Spawn Router Validation - Missing Arguments"
 echo "----------------------------------------------------"
 spawn_script="$PARENT_DIR/scripts/spawn/index.sh"
 if [ -f "$spawn_script" ]; then
@@ -161,12 +116,12 @@ else
 fi
 echo ""
 
-# Test 9: Spawn router validation - Invalid directory
-echo "Test 9: Spawn Router Validation - Invalid Directory"
+# Test 6: Spawn router validation - Invalid directory
+echo "Test 6: Spawn Router Validation - Invalid Directory"
 echo "----------------------------------------------------"
 NONEXISTENT_DIR="/nonexistent_dir_$(date +%s)"
 if [ -f "$spawn_script" ]; then
-    if OUTPUT=$("$spawn_script" "TestTab" "echo test" "$NONEXISTENT_DIR" 2>&1); then
+    if OUTPUT=$("$spawn_script" --cmd "echo test" --dir "$NONEXISTENT_DIR" 2>&1); then
         fail_test "spawn/index.sh: Should fail with invalid directory" "Accepted nonexistent: $NONEXISTENT_DIR"
     else
         if echo "$OUTPUT" | grep -qi "does not exist\|not.*directory"; then
@@ -178,46 +133,8 @@ if [ -f "$spawn_script" ]; then
 fi
 echo ""
 
-# Test 10: Read router validation - Missing arguments
-echo "Test 10: Read Router Validation - Missing Arguments"
-echo "----------------------------------------------------"
-read_script="$PARENT_DIR/scripts/read/index.sh"
-if [ -f "$read_script" ]; then
-    if OUTPUT=$("$read_script" 2>&1); then
-        fail_test "read/index.sh: Should fail with no arguments" "Expected usage message"
-    else
-        if echo "$OUTPUT" | grep -qi "Missing\|Usage:"; then
-            pass_test "read/index.sh: Correctly shows usage for missing arguments"
-        else
-            fail_test "read/index.sh: Failed but didn't show usage" "Output: $OUTPUT"
-        fi
-    fi
-else
-    fail_test "read/index.sh not found" "Expected at $read_script"
-fi
-echo ""
-
-# Test 11: Write router validation - Missing arguments
-echo "Test 11: Write Router Validation - Missing Arguments"
-echo "-----------------------------------------------------"
-write_script="$PARENT_DIR/scripts/write/index.sh"
-if [ -f "$write_script" ]; then
-    if OUTPUT=$("$write_script" 2>&1); then
-        fail_test "write/index.sh: Should fail with no arguments" "Expected usage message"
-    else
-        if echo "$OUTPUT" | grep -qi "Missing\|Usage:"; then
-            pass_test "write/index.sh: Correctly shows usage for missing arguments"
-        else
-            fail_test "write/index.sh: Failed but didn't show usage" "Output: $OUTPUT"
-        fi
-    fi
-else
-    fail_test "write/index.sh not found" "Expected at $write_script"
-fi
-echo ""
-
-# Test 12: Required files exist
-echo "Test 12: Required Files Exist"
+# Test 7: Required files exist
+echo "Test 7: Required Files Exist"
 echo "-----------------------------"
 REQUIRED_FILES=(
     "scripts/spawn.sh"
@@ -226,18 +143,15 @@ REQUIRED_FILES=(
     "scripts/spawn/kitty.sh"
     "scripts/spawn/iterm2.sh"
     "scripts/spawn/terminal.sh"
-    "scripts/read/index.sh"
-    "scripts/read/tmux.sh"
-    "scripts/write/index.sh"
-    "scripts/write/tmux.sh"
-    "scripts/list/index.sh"
-    "scripts/list/tmux.sh"
+    "scripts/spawn/alacritty.sh"
+    "scripts/spawn/ghostty.sh"
+    "scripts/spawn/gnome-terminal.sh"
+    "scripts/spawn/windows-terminal.sh"
     "scripts/lib/common.sh"
     "scripts/lib/detect.sh"
     "scripts/lib/colors.sh"
     "scripts/validate-installation.sh"
-    "commands/run.md"
-    "lib/dependency-analyzer.md"
+    "commands/spawn.md"
     "README.md"
 )
 
@@ -250,8 +164,8 @@ for file in "${REQUIRED_FILES[@]}"; do
 done
 echo ""
 
-# Test 13: Settings file structure
-echo "Test 13: Settings File Validation"
+# Test 8: Settings file structure
+echo "Test 8: Settings File Validation"
 echo "---------------------------------"
 SETTINGS_FILE="$PARENT_DIR/.claude/settings.local.json"
 if [ -f "$SETTINGS_FILE" ]; then
@@ -273,8 +187,8 @@ else
 fi
 echo ""
 
-# Test 14: Plugin structure
-echo "Test 14: Plugin Structure"
+# Test 9: Plugin structure
+echo "Test 9: Plugin Structure"
 echo "------------------------"
 if [ -f "$PARENT_DIR/.claude-plugin/plugin.json" ]; then
     pass_test "plugin.json exists"
@@ -290,8 +204,8 @@ else
 fi
 echo ""
 
-# Test 15: Run lib/common.sh unit tests
-echo "Test 15: lib/common.sh Unit Tests"
+# Test 10: Run lib/common.sh unit tests
+echo "Test 10: lib/common.sh Unit Tests"
 echo "----------------------------------"
 if [ -f "$SCRIPT_DIR/test_common.sh" ]; then
     if "$SCRIPT_DIR/test_common.sh"; then
@@ -304,8 +218,8 @@ else
 fi
 echo ""
 
-# Test 16: Run lib/detect.sh unit tests
-echo "Test 16: lib/detect.sh Unit Tests"
+# Test 11: Run lib/detect.sh unit tests
+echo "Test 11: lib/detect.sh Unit Tests"
 echo "----------------------------------"
 if [ -f "$SCRIPT_DIR/test_detect.sh" ]; then
     if "$SCRIPT_DIR/test_detect.sh"; then
@@ -315,6 +229,20 @@ if [ -f "$SCRIPT_DIR/test_detect.sh" ]; then
     fi
 else
     fail_test "test_detect.sh not found" "Expected at $SCRIPT_DIR/test_detect.sh"
+fi
+echo ""
+
+# Test 12: Run spawn script tests
+echo "Test 12: Spawn Script Tests"
+echo "---------------------------"
+if [ -f "$SCRIPT_DIR/test_spawn.sh" ]; then
+    if "$SCRIPT_DIR/test_spawn.sh"; then
+        pass_test "spawn script tests passed"
+    else
+        fail_test "spawn script tests failed" "Run: $SCRIPT_DIR/test_spawn.sh"
+    fi
+else
+    fail_test "test_spawn.sh not found" "Expected at $SCRIPT_DIR/test_spawn.sh"
 fi
 echo ""
 

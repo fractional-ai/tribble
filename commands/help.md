@@ -17,9 +17,6 @@ Like tribbles, your sessions multiply rapidly.
 
 ### Session Management
 - `/tribble:spawn` - Spawn new tabs/sessions
-- `/tribble:list` - List all active sessions with IDs
-- `/tribble:read` - Read buffer content from a session
-- `/tribble:write` - Send text/commands to a session
 
 ### Help
 - `/tribble:help` - Display this help information
@@ -33,14 +30,14 @@ Like tribbles, your sessions multiply rapidly.
 **Single tab:**
 ```
 /tribble:spawn open claude for auth
-→ ✓ Tab created in 5 seconds
+→ ✓ Tab created
 ```
 
 **Multiple tabs:**
 ```
 /tribble:spawn start frontend and backend
 → What commands?
-→ ✓ Both tabs created in 10 seconds
+→ ✓ Both tabs created
 ```
 
 ## Supported Terminals
@@ -49,15 +46,12 @@ Like tribbles, your sessions multiply rapidly.
 - ✅ **iTerm2** - Native AppleScript support
 - ✅ **Terminal.app** - Native AppleScript support
 - ✅ **Ghostty** - Native AppleScript support
-- ✅ **tmux** - Native tmux commands
-- ✅ **Alacritty** - Via `msg create-window`
 - ✅ **Kitty** - Via remote control API (requires config)
-- ✅ **Warp** - Via AppleScript automation
-- ✅ **Hyper** - Via AppleScript automation
+- ✅ **Alacritty** - Via `msg create-window`
+- ✅ **tmux** - Native tmux commands
 
 ### Linux
 - ✅ **GNOME Terminal** - Native CLI support
-- ✅ **Konsole** - Native CLI support (requires config)
 - ✅ **tmux** - Native tmux commands
 - ✅ **Alacritty** - Via `msg create-window`
 - ✅ **Kitty** - Via remote control API (requires config)
@@ -79,60 +73,12 @@ Add to `~/.config/kitty/kitty.conf`:
 allow_remote_control yes
 ```
 
-### Konsole (KDE)
-Enable in: **Settings → Configure Konsole → General**
-- ☑ "Run all Konsole windows in a single process"
-
-### Warp/Hyper (macOS)
-Grant accessibility permissions:
-- System Preferences → Security & Privacy → Privacy → Accessibility
-
 ## Common Uses
 
 - Open Claude session for specific feature
 - Start multiple dev servers
 - Run commands in parallel
 - Open multiple Claude instances for different tasks
-- Monitor spawned sessions without switching tabs
-- Send commands to running sessions remotely
-
-## Session Primitives
-
-Tribble provides four primitives for session management:
-
-| Primitive | Description | Supported Terminals |
-|-----------|-------------|---------------------|
-| **spawn** | Create new tabs/sessions | All supported terminals |
-| **list** | List all sessions with IDs | tmux, kitty, iTerm2, Terminal.app |
-| **read** | Read session buffer content | tmux, kitty, iTerm2, Terminal.app |
-| **write** | Send text to a session | tmux, kitty, iTerm2, Terminal.app |
-
-### Session IDs
-
-When you spawn a session, it returns a session ID you can use with read/write:
-
-```
-/tribble:spawn start test runner
-→ ✓ Created tab 'Test Runner' (ID: tribble:0)
-
-/tribble:read tribble:0
-→ Shows test output
-
-/tribble:write tribble:0 "npm run test:verbose"
-→ Sends command to session
-```
-
-### Terminal Support Matrix
-
-| Terminal | spawn | read | write | list |
-|----------|-------|------|-------|------|
-| tmux | Yes | Yes | Yes | Yes |
-| kitty | Yes | Yes | Yes | Yes |
-| iTerm2 | Yes | Yes | Yes | Yes |
-| Terminal.app | Yes | Yes | Yes | Yes |
-| Ghostty | Yes | No | No | No |
-| GNOME Terminal | Yes | No | No | No |
-| Alacritty | Yes | No | No | No |
 
 ## Debug Mode
 
