@@ -84,3 +84,10 @@ cd ~/.claude/plugins/tribble && git pull
 ## Issues
 
 Report bugs: https://github.com/fractional-ai/tribble/issues
+
+---
+
+*"Obviously tribbles are very perceptive creatures, Captain."*
+— Spock (Star Trek)
+
+![Tribbles multiplying](assets/tribbles.png)
