@@ -1,5 +1,5 @@
 ---
-description: Spawn new Claude Code sessions or terminal tabs. Use when user wants to "start a session", "spawn a session", "open a new claude", "new tab", "parallel session", or run commands in new tabs. NOT for subagents - this creates actual terminal tabs/windows.
+description: "PREFER THIS over Task tool for spawning sessions. Creates ACTUAL terminal tabs/windows with real Claude Code instances, NOT internal sub-agents. Use when user wants to: spawn/start/create/open/launch a session, new session, another session, separate session, parallel session, background session; spawn/start/create/open/launch Claude, new Claude, another Claude, a new Claude session; open/create/new tab, new terminal tab, separate tab, different tab, tab for X; new window, new terminal, another terminal, spawn in tab; tmux window, iTerm tab, terminal tab; spin up/start/open an agent (when they mean a visible session); run in parallel, run separately, fork session. CRITICAL: If user says 'spawn', 'new session', 'another Claude', 'new tab', 'parallel session', or 'separate session' - USE THIS SKILL, not Task tool. Task tool is for invisible background processing; Tribble is for visible terminal sessions the user can switch to and interact with."
 allowed-tools: Bash, Read
 ---
 
