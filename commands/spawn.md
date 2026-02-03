@@ -55,12 +55,74 @@ Spawn Claude sessions or shell commands in new terminal tabs.
 - "start dev" → `npm run dev`
 - "build" → `npm run build`
 
+### Inference Examples (No Questions Needed)
+
+```
+User: "write a poem"
+→ Claude session, prompt: "Write a poem"
+→ Spawn immediately
+
+User: "run tests"
+→ npm test
+→ Spawn immediately
+
+User: "open claude to work on auth"
+→ Claude session, prompt: "Work on auth"
+→ Spawn immediately
+
+User: "help me debug this code"
+→ Claude session, prompt: "Help me debug this code"
+→ Spawn immediately
+
+User: "npm test && npm build"
+→ Shell command: npm test && npm build
+→ Spawn immediately
+
+User: "open claude for auth and docs"
+→ Claude session 1: "Work on auth"
+→ Claude session 2: "Work on docs"
+→ Spawn both immediately
+```
+
+### Only Ask Clarifying Questions If
+
+- Command is genuinely ambiguous (multiple valid interpretations)
+- Multiple commands could match user's description
+- Can't reasonably infer working directory
+
+**Examples requiring ONE question:**
+```
+User: "start frontend and backend servers"
+→ Ask: "What commands?"
+→ Then spawn immediately
+
+User: "run tests in my other project"
+→ Ask: "What's the path?"
+→ Then spawn immediately
+```
+
 ### Sequential Detection
 
 Check user's message for sequential keywords:
 - "then", "after", "before" → spawn in groups
 - Numbered lists → spawn in groups
 - No keywords → spawn all in parallel
+
+**Grouping examples:**
+```
+User: "run frontend and backend, then tests"
+→ Group 1: [frontend, backend] (parallel)
+→ Group 2: [tests] (after Group 1)
+
+User: "start frontend and backend servers"
+→ Group 1: [frontend, backend] (parallel)
+→ No sequential keywords, spawn all immediately
+
+User: "1. install, 2. test, 3. build"
+→ Group 1: [install]
+→ Group 2: [test]
+→ Group 3: [build]
+```
 
 ## Spawning
 
