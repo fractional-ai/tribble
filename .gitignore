@@ -29,3 +29,6 @@ coverage/
 tmp/
 temp/
 *.tmp
+
+# Beads issue tracking (local data)
+.beads/
