@@ -1,6 +1,6 @@
 # Tribble
 
-A Claude Code plugin that spawns sessions in new terminal tabs.
+A Claude Code plugin that spawns Claude code sessions in new terminal tabs.
 
 ```
 You: "Spawn claude sessions for auth, payments, and docs"
@@ -10,7 +10,7 @@ You: "Spawn claude sessions for auth, payments, and docs"
 ✓ Created 'Docs'
 ```
 
-Three Claude sessions running in parallel. Like tribbles multiplying.
+Three Claude sessions running in parallel with proper context. Like tribbles multiplying.
 
 ## Install
 
