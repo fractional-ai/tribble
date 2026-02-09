@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 # Terminal.app spawn implementation
-# Creates a new Terminal.app tab using AppleScript
+# Creates a new Terminal.app tab/window using AppleScript
+#
+# Attempts tab creation via Cmd+T keystroke (requires accessibility
+# permissions). Falls back to a new window via native `do script`
+# if keystroke fails.
 #
 # Session ID format: TTY path (e.g., "/dev/ttys017")
 
@@ -25,52 +29,57 @@ if [ -z "$FULL_COMMAND" ]; then
     FULL_COMMAND=$(prepare_command_with_prompt "$PROMPT" "$COMMAND")
 fi
 
-COMMAND_ESCAPED=$(echo "$FULL_COMMAND" | sed -e 's/\\/\\\\/g' -e 's/"/\\"/g')
-TAB_NAME_ESCAPED=$(echo "$TAB_NAME" | sed -e 's/\\/\\\\/g' -e 's/"/\\"/g')
+TTY_PATH=$(osascript - "$FULL_COMMAND" "$DIRECTORY" "$TAB_NAME" 2>&1 <<'APPLESCRIPT'
+on run argv
+    set theCommand to item 1 of argv
+    set theDir to item 2 of argv
+    set theName to item 3 of argv
 
-# Create a colored indicator using the first letter of the tab name
-TAB_INITIAL="${TAB_NAME:0:1}"
+    tell application "Terminal"
+        activate
+        delay 0.3
 
-TTY_PATH=$(osascript <<EOF
--- Check accessibility permissions
-tell application "System Events"
-    if not UI elements enabled then
-        display dialog "This script requires accessibility permissions. Please enable in System Preferences > Security & Privacy > Privacy > Accessibility"
-        error "Accessibility permissions not enabled"
-    end if
-end tell
+        set newTab to missing value
 
-tell application "Terminal"
-    -- Get current tab count to verify new tab creation
-    set tabCount to count of tabs of front window
+        -- Try to create a tab via keystroke (requires accessibility + existing window)
+        if (count of windows) > 0 then
+            set oldTTY to tty of selected tab of front window
+            try
+                tell application "System Events"
+                    keystroke "t" using command down
+                end tell
+                -- Wait for tab to appear (retry up to 2s)
+                repeat 10 times
+                    delay 0.2
+                    if tty of selected tab of front window is not oldTTY then
+                        set newTab to selected tab of front window
+                        exit repeat
+                    end if
+                end repeat
+            end try
+        end if
 
-    activate
-    tell application "System Events"
-        keystroke "t" using command down
-    end tell
+        -- Fallback: create a new window via native do script
+        if newTab is missing value then
+            set newTab to do script ""
+            delay 0.3
+        end if
 
-    delay 0.5
+        set ttyPath to tty of newTab
 
-    -- Verify new tab was created
-    if (count of tabs of front window) <= tabCount then
-        error "Failed to create new tab"
-    end if
+        -- Note: Terminal.app does not support tab bar coloring.
+        -- Tab colors are only available in iTerm2.
 
-    -- Target specific tab instead of assuming front window
-    tell tab (count of tabs of front window) of front window
-        set ttyPath to tty
-
-        do script "cd \"$DIRECTORY\""
-        -- Set window title
-        do script "printf '\\033]0;$TAB_NAME_ESCAPED\\007'"
-        -- Set badge with tab initial (Terminal.app only shows this in some versions)
-        do script "printf '\\033]1337;SetBadgeFormat=%s\\007' \$(echo -n '$TAB_INITIAL' | base64)"
-        do script "$COMMAND_ESCAPED"
+        -- Run commands in the new session
+        do script "cd \"" & theDir & "\"" in newTab
+        -- Set window title using escape sequence
+        do script "printf '\\033]0;" & theName & "\\007'" in newTab
+        do script theCommand in newTab
 
         return ttyPath
     end tell
-end tell
-EOF
+end run
+APPLESCRIPT
 )
 EXIT_CODE=$?
 
@@ -80,7 +89,15 @@ if [ $EXIT_CODE -eq 0 ] && [ -n "$TTY_PATH" ]; then
     success_message "$TAB_NAME" "Terminal.app" >&2
     exit 0
 else
-    print_error_header "Terminal.app" "$TAB_NAME" "" >&2
+    print_error_header "Terminal.app" "$TAB_NAME" "$TTY_PATH" >&2
+    echo "" >&2
+    echo "Common causes:" >&2
+    echo "  - Terminal.app is not running" >&2
+    echo "  - AppleScript automation permissions not granted" >&2
+    echo "" >&2
+    echo "To grant automation permissions:" >&2
+    echo "  1. Open System Settings > Privacy & Security > Automation" >&2
+    echo "  2. Find your terminal/app and enable control of Terminal" >&2
     print_manual_instructions "$TAB_NAME" "$COMMAND" "$DIRECTORY" "$PROMPT" >&2
-    exit 1
+    exit 3
 fi
