@@ -7,18 +7,29 @@ allowed-tools: Bash, Read
 
 Spawn Claude sessions or shell commands in new terminal tabs.
 
+## Path Resolution (IMPORTANT)
+
+`CLAUDE_PLUGIN_ROOT` is NOT available in bash commands due to a [known Claude Code bug](https://github.com/anthropics/claude-code/issues/9354). Before running spawn commands, first resolve the plugin path:
+
+```bash
+# Resolve tribble install path from installed_plugins.json
+TRIBBLE_ROOT=$(python3 -c "import json; print(json.load(open('$HOME/.claude/plugins/installed_plugins.json'))['plugins']['tribble@local-plugins'][0]['installPath'])")
+```
+
+Then use `"$TRIBBLE_ROOT/scripts/spawn.sh"` in all commands below.
+
 ## Quick Reference
 
 ```bash
 # Claude session - pass prompt as first argument
-"${CLAUDE_PLUGIN_ROOT}/scripts/spawn.sh" "Your prompt here"
+"$TRIBBLE_ROOT/scripts/spawn.sh" "Your prompt here"
 
 # Shell command - use --cmd flag
-"${CLAUDE_PLUGIN_ROOT}/scripts/spawn.sh" --cmd "npm test"
+"$TRIBBLE_ROOT/scripts/spawn.sh" --cmd "npm test"
 
 # With options
-"${CLAUDE_PLUGIN_ROOT}/scripts/spawn.sh" "Your prompt" --name "Tab Name" --dir /path
-"${CLAUDE_PLUGIN_ROOT}/scripts/spawn.sh" --cmd "npm test" --name "Tests" --dir /path
+"$TRIBBLE_ROOT/scripts/spawn.sh" "Your prompt" --name "Tab Name" --dir /path
+"$TRIBBLE_ROOT/scripts/spawn.sh" --cmd "npm test" --name "Tests" --dir /path
 ```
 
 **Flags:**
@@ -131,8 +142,8 @@ User: "1. install, 2. test, 3. build"
 Spawn all tasks immediately:
 
 ```bash
-"${CLAUDE_PLUGIN_ROOT}/scripts/spawn.sh" "Work on auth" --name "Auth"
-"${CLAUDE_PLUGIN_ROOT}/scripts/spawn.sh" --cmd "npm run dev" --name "Dev Server"
+"$TRIBBLE_ROOT/scripts/spawn.sh" "Work on auth" --name "Auth"
+"$TRIBBLE_ROOT/scripts/spawn.sh" --cmd "npm run dev" --name "Dev Server"
 ```
 
 Show progress:
@@ -173,7 +184,7 @@ Working on auth bug in src/auth.ts
 ## Task
 Write tests for the JWT validation logic"
 
-"${CLAUDE_PLUGIN_ROOT}/scripts/spawn.sh" "$PROMPT" --name "Auth Tests"
+"$TRIBBLE_ROOT/scripts/spawn.sh" "$PROMPT" --name "Auth Tests"
 ```
 
 ## Examples
@@ -183,7 +194,7 @@ Write tests for the JWT validation logic"
 ```
 User: open claude to work on auth
 
-You: "${CLAUDE_PLUGIN_ROOT}/scripts/spawn.sh" "Help with authentication" --name "Auth"
+You: "$TRIBBLE_ROOT/scripts/spawn.sh" "Help with authentication" --name "Auth"
 
 ✓ Created tab 'Auth'
 ```
@@ -196,8 +207,8 @@ You: What commands?
 User: npm run dev:frontend, npm run dev:backend
 
 You:
-"${CLAUDE_PLUGIN_ROOT}/scripts/spawn.sh" --cmd "npm run dev:frontend" --name "Frontend"
-"${CLAUDE_PLUGIN_ROOT}/scripts/spawn.sh" --cmd "npm run dev:backend" --name "Backend"
+"$TRIBBLE_ROOT/scripts/spawn.sh" --cmd "npm run dev:frontend" --name "Frontend"
+"$TRIBBLE_ROOT/scripts/spawn.sh" --cmd "npm run dev:backend" --name "Backend"
 
 ✓ Created 2 tabs
 ```
@@ -209,14 +220,14 @@ User: run tests then build
 
 You: I'll spawn tests first, then build after.
 
-"${CLAUDE_PLUGIN_ROOT}/scripts/spawn.sh" --cmd "npm test" --name "Tests"
+"$TRIBBLE_ROOT/scripts/spawn.sh" --cmd "npm test" --name "Tests"
 
 ✓ Created tab 'Tests' (Group 1 of 2)
 Return here when done, say "done" to spawn build.
 
 User: done
 
-"${CLAUDE_PLUGIN_ROOT}/scripts/spawn.sh" --cmd "npm run build" --name "Build"
+"$TRIBBLE_ROOT/scripts/spawn.sh" --cmd "npm run build" --name "Build"
 
 ✓ Created tab 'Build' (Group 2 of 2)
 All done!
@@ -246,7 +257,7 @@ You: I'll create the worktree first, then spawn a session there.
 
 ✅ Worktree created at ../feature-x
 
-"${CLAUDE_PLUGIN_ROOT}/scripts/spawn.sh" "Work on feature-x" --name "Feature X" --dir "../feature-x"
+"$TRIBBLE_ROOT/scripts/spawn.sh" "Work on feature-x" --name "Feature X" --dir "../feature-x"
 
 ✓ Created tab 'Feature X' in worktree
 ```
@@ -257,7 +268,7 @@ You: I'll create the worktree first, then spawn a session there.
 ```
 User: I've created ../feature-x, spawn claude there
 
-"${CLAUDE_PLUGIN_ROOT}/scripts/spawn.sh" "Work on feature-x" --dir "../feature-x"
+"$TRIBBLE_ROOT/scripts/spawn.sh" "Work on feature-x" --dir "../feature-x"
 ```
 
 ## Special Cases
@@ -267,7 +278,7 @@ User: I've created ../feature-x, spawn claude there
 Commands with quotes, pipes, or special characters work fine:
 
 ```bash
-"${CLAUDE_PLUGIN_ROOT}/scripts/spawn.sh" --cmd "npm test && npm run lint" --name "Test & Lint"
+"$TRIBBLE_ROOT/scripts/spawn.sh" --cmd "npm test && npm run lint" --name "Test & Lint"
 ```
 
 The spawn script handles quoting and escaping.
