@@ -35,30 +35,24 @@ done
 # Create plugins directory if it doesn't exist
 mkdir -p "${CLAUDE_PLUGINS_DIR}"
 
-# Check if already installed
+# Install or update
 if [ -d "${INSTALL_DIR}" ]; then
+    IS_UPDATE=true
     echo "📦 Plugin already installed — updating..."
     cd "${INSTALL_DIR}"
     git pull
-    chmod +x "${INSTALL_DIR}"/scripts/*.sh
-    echo ""
-    echo "✅ Plugin updated successfully!"
-    echo ""
-    echo "Restart Claude Code to load the updates:"
-    echo "  claude"
-    exit 0
-fi
-
-# Clone repository
-echo "📦 Cloning repository from ${REPO_URL}..."
-if ! git clone "${REPO_URL}" "${INSTALL_DIR}"; then
-    echo ""
-    echo "❌ Failed to clone repository."
-    echo ""
-    echo "If you see an authentication error, try:"
-    echo "  1. Check your internet connection"
-    echo "  2. Setting up SSH keys: https://docs.github.com/en/authentication"
-    exit 1
+else
+    IS_UPDATE=false
+    echo "📦 Cloning repository from ${REPO_URL}..."
+    if ! git clone "${REPO_URL}" "${INSTALL_DIR}"; then
+        echo ""
+        echo "❌ Failed to clone repository."
+        echo ""
+        echo "If you see an authentication error, try:"
+        echo "  1. Check your internet connection"
+        echo "  2. Setting up SSH keys: https://docs.github.com/en/authentication"
+        exit 1
+    fi
 fi
 
 # Make scripts executable
@@ -142,25 +136,23 @@ node -e "
 "
 
 echo ""
-echo "✅ Installation complete!"
+if [ "$IS_UPDATE" = true ]; then
+    echo "✅ Plugin updated successfully!"
+else
+    echo "✅ Installation complete!"
+fi
 echo ""
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo "Next steps:"
 echo ""
-echo "  1. Restart Claude Code (plugin auto-loads from ~/.claude/plugins/):"
+echo "  Restart Claude Code to load changes:"
 echo "     claude"
 echo ""
-echo "  2. In Claude Code, verify installation:"
+echo "  Verify with:"
 echo "     /tribble:spawn"
 echo "     /tribble:help"
 echo ""
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo ""
-echo "📝 Note: The plugin is installed to ${INSTALL_DIR}"
-echo "    It will automatically load in all Claude Code sessions."
-echo ""
-echo "To update in the future:"
-echo "  cd ${INSTALL_DIR} && git pull && claude"
-echo ""
-echo "For help, see: ${INSTALL_DIR}/README.md"
+echo "To update in the future, re-run:"
+echo "  curl -fsSL https://raw.githubusercontent.com/fractional-ai/tribble/main/install.sh | bash"
 echo ""
