@@ -47,7 +47,7 @@ echo "Checking required files..."
 REQUIRED_FILES=(
     "scripts/spawn.sh"
     "scripts/lib/common.sh"
-    "commands/run.md"
+    "commands/spawn.md"
 )
 
 for file in "${REQUIRED_FILES[@]}"; do
@@ -215,7 +215,7 @@ if [ $ERRORS -eq 0 ]; then
     echo ""
     echo "Next steps:"
     echo "  1. Start Claude Code: claude --plugin-dir $PLUGIN_ROOT"
-    echo "  2. Run the command: /tribble:run"
+    echo "  2. Run the command: /tribble:spawn"
     echo "  3. Check Examples.md for usage examples"
     exit 0
 else
