@@ -122,6 +122,7 @@ node -e "
   // Only create if it doesn't exist
   if (!fs.existsSync(file)) {
     const marketplace = {
+      '\$schema': 'https://anthropic.com/claude-code/marketplace.schema.json',
       name: '${MARKETPLACE}',
       version: '1.0.0',
       description: 'Local plugins marketplace for user-installed Claude Code plugins',
