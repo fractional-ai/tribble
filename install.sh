@@ -107,6 +107,60 @@ node -e "
   }
 "
 
+# 2.5. Create marketplace.json in the marketplace directory itself
+MARKETPLACE_DIR="${CLAUDE_PLUGINS_DIR}"
+MARKETPLACE_META_DIR="${MARKETPLACE_DIR}/.claude-plugin"
+MARKETPLACE_JSON="${MARKETPLACE_META_DIR}/marketplace.json"
+
+mkdir -p "${MARKETPLACE_META_DIR}"
+
+node -e "
+  const fs = require('fs');
+  const path = require('path');
+  const file = '${MARKETPLACE_JSON}';
+
+  // Only create if it doesn't exist
+  if (!fs.existsSync(file)) {
+    const marketplace = {
+      name: '${MARKETPLACE}',
+      version: '1.0.0',
+      description: 'Local plugins marketplace for user-installed Claude Code plugins',
+      owner: {
+        name: 'Local User'
+      },
+      plugins: []
+    };
+
+    // Scan for plugins in the directory
+    try {
+      const entries = fs.readdirSync('${MARKETPLACE_DIR}', { withFileTypes: true });
+      for (const entry of entries) {
+        if (!entry.isDirectory()) continue;
+        const pluginPath = path.join('${MARKETPLACE_DIR}', entry.name);
+        const pluginJsonPath = path.join(pluginPath, '.claude-plugin', 'plugin.json');
+
+        if (fs.existsSync(pluginJsonPath)) {
+          try {
+            const pluginData = JSON.parse(fs.readFileSync(pluginJsonPath, 'utf8'));
+            marketplace.plugins.push({
+              name: entry.name,
+              source: './' + entry.name,
+              description: pluginData.description || '',
+              version: pluginData.version || '1.0.0'
+            });
+          } catch (e) {
+            // Skip invalid plugin.json files
+          }
+        }
+      }
+    } catch (e) {
+      // If scanning fails, just create empty plugins array
+    }
+
+    fs.writeFileSync(file, JSON.stringify(marketplace, null, 2) + '\n');
+  }
+"
+
 # 3. Enable plugin and add permissions in settings.json
 node -e "
   const fs = require('fs');
