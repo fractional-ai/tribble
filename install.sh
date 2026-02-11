@@ -119,9 +119,11 @@ node -e "
   const path = require('path');
   const file = '${MARKETPLACE_JSON}';
 
-  // Only create if it doesn't exist
-  if (!fs.existsSync(file)) {
-    const marketplace = {
+  let marketplace;
+  try {
+    marketplace = JSON.parse(fs.readFileSync(file, 'utf8'));
+  } catch {
+    marketplace = {
       '\$schema': 'https://anthropic.com/claude-code/marketplace.schema.json',
       name: '${MARKETPLACE}',
       version: '1.0.0',
@@ -131,35 +133,29 @@ node -e "
       },
       plugins: []
     };
-
-    // Scan for plugins in the directory
-    try {
-      const entries = fs.readdirSync('${MARKETPLACE_DIR}', { withFileTypes: true });
-      for (const entry of entries) {
-        if (!entry.isDirectory()) continue;
-        const pluginPath = path.join('${MARKETPLACE_DIR}', entry.name);
-        const pluginJsonPath = path.join(pluginPath, '.claude-plugin', 'plugin.json');
-
-        if (fs.existsSync(pluginJsonPath)) {
-          try {
-            const pluginData = JSON.parse(fs.readFileSync(pluginJsonPath, 'utf8'));
-            marketplace.plugins.push({
-              name: entry.name,
-              source: './' + entry.name,
-              description: pluginData.description || '',
-              version: pluginData.version || '1.0.0'
-            });
-          } catch (e) {
-            // Skip invalid plugin.json files
-          }
-        }
-      }
-    } catch (e) {
-      // If scanning fails, just create empty plugins array
-    }
-
-    fs.writeFileSync(file, JSON.stringify(marketplace, null, 2) + '\n');
   }
+
+  if (!marketplace.plugins) marketplace.plugins = [];
+
+  // Read plugin metadata
+  let pluginDesc = '';
+  let pluginVer = '1.0.0';
+  try {
+    const pluginData = JSON.parse(fs.readFileSync(path.join('${INSTALL_DIR}', '.claude-plugin', 'plugin.json'), 'utf8'));
+    pluginDesc = pluginData.description || '';
+    pluginVer = pluginData.version || '1.0.0';
+  } catch {}
+
+  // Remove existing entry if present, then add fresh
+  marketplace.plugins = marketplace.plugins.filter(p => p.name !== '${PLUGIN_NAME}');
+  marketplace.plugins.push({
+    name: '${PLUGIN_NAME}',
+    source: './${PLUGIN_NAME}',
+    description: pluginDesc,
+    version: pluginVer
+  });
+
+  fs.writeFileSync(file, JSON.stringify(marketplace, null, 2) + '\n');
 "
 
 # 3. Enable plugin and add permissions in settings.json

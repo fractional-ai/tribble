@@ -68,7 +68,22 @@ if [ -f "${SETTINGS_FILE}" ]; then
     "
 fi
 
-# 3. Remove plugin directory
+# 3. Remove from marketplace.json
+MARKETPLACE_JSON="${CLAUDE_PLUGINS_DIR}/.claude-plugin/marketplace.json"
+if [ -f "${MARKETPLACE_JSON}" ]; then
+    echo "Removing from marketplace.json..."
+    node -e "
+      const fs = require('fs');
+      const file = '${MARKETPLACE_JSON}';
+      const data = JSON.parse(fs.readFileSync(file, 'utf8'));
+      if (data.plugins) {
+        data.plugins = data.plugins.filter(p => p.name !== '${PLUGIN_NAME}');
+      }
+      fs.writeFileSync(file, JSON.stringify(data, null, 2) + '\n');
+    "
+fi
+
+# 4. Remove plugin directory
 echo "Removing plugin directory..."
 rm -rf "${INSTALL_DIR}"
 
