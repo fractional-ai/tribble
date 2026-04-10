@@ -112,6 +112,7 @@ print_manual_instructions() {
 prepare_command_with_prompt() {
     local prompt="$1"
     local command="$2"
+    local skip_permissions="$3"
 
     if [ -n "$prompt" ]; then
         # Create unique files for wrapper script and prompt
@@ -123,11 +124,17 @@ prepare_command_with_prompt() {
         printf '%s' "$prompt" > "$prompt_file"
 
         if [ "$command" = "claude" ]; then
+            # Build Claude flags
+            local claude_flags=""
+            if [ "$skip_permissions" = "1" ]; then
+                claude_flags=" --dangerously-skip-permissions"
+            fi
+
             # For Claude: pass prompt as argument
             cat > "$wrapper_script" << WRAPPER_EOF
 #!/bin/bash
 prompt=\$(cat "$prompt_file")
-claude "\$prompt"
+claude${claude_flags} "\$prompt"
 rm -f "$wrapper_script" "$prompt_file"
 WRAPPER_EOF
         else

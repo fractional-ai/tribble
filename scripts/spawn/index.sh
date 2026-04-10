@@ -10,6 +10,7 @@
 #   --dir /path          Working directory (defaults to current)
 #   --color red          Tab color (auto-assigned if not provided)
 #   --cmd "command"      Run shell command instead of Claude
+#   --skip-permissions   Pass --dangerously-skip-permissions to Claude
 #
 # Exit codes:
 #   0 - Success
@@ -33,6 +34,7 @@ DIRECTORY="$PWD"
 TAB_NAME=""
 TAB_COLOR=""
 PROMPT=""
+SKIP_PERMISSIONS=""
 
 # Parse arguments
 while [[ $# -gt 0 ]]; do
@@ -53,6 +55,10 @@ while [[ $# -gt 0 ]]; do
             TAB_COLOR="$2"
             shift 2
             ;;
+        --skip-permissions)
+            SKIP_PERMISSIONS="1"
+            shift
+            ;;
         --help|-h)
             echo "Usage: spawn.sh \"Your prompt here\"              # Claude session"
             echo "       spawn.sh --cmd \"npm test\"                 # Shell command"
@@ -62,6 +68,7 @@ while [[ $# -gt 0 ]]; do
             echo "  --dir /path          Working directory (defaults to current)"
             echo "  --color red          Tab color (auto-assigned if not provided)"
             echo "  --cmd \"command\"      Run shell command instead of Claude"
+            echo "  --skip-permissions   Pass --dangerously-skip-permissions to Claude"
             exit 0
             ;;
         --*)
@@ -125,10 +132,10 @@ if ! is_terminal_supported "$TERMINAL_TYPE"; then
 fi
 
 # Prepare command with prompt
-FULL_COMMAND=$(prepare_command_with_prompt "$PROMPT" "$COMMAND")
+FULL_COMMAND=$(prepare_command_with_prompt "$PROMPT" "$COMMAND" "$SKIP_PERMISSIONS")
 
 # Export variables for terminal-specific scripts
-export TAB_NAME COMMAND DIRECTORY PROMPT TAB_COLOR FULL_COMMAND
+export TAB_NAME COMMAND DIRECTORY PROMPT TAB_COLOR FULL_COMMAND SKIP_PERMISSIONS
 
 # Dispatch to terminal-specific implementation
 TERMINAL_SCRIPT="$SCRIPT_DIR/$TERMINAL_TYPE.sh"

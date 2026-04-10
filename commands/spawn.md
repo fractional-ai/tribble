@@ -37,6 +37,7 @@ Then use `"$TRIBBLE_ROOT/scripts/spawn.sh"` in all commands below.
 - `--dir /path` - Working directory (defaults to current)
 - `--color red` - Tab color (auto-assigned if omitted)
 - `--cmd "command"` - Run shell command instead of Claude
+- `--skip-permissions` - Pass `--dangerously-skip-permissions` to Claude
 
 ## Workflow
 
