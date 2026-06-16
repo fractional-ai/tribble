@@ -12,8 +12,11 @@ Spawn Claude sessions or shell commands in new terminal tabs.
 `CLAUDE_PLUGIN_ROOT` is NOT available in bash commands due to a [known Claude Code bug](https://github.com/anthropics/claude-code/issues/9354). Before running spawn commands, first resolve the plugin path:
 
 ```bash
-# Resolve tribble install path from installed_plugins.json
-TRIBBLE_ROOT=$(python3 -c "import json; print(json.load(open('$HOME/.claude/plugins/installed_plugins.json'))['plugins']['tribble@local-plugins'][0]['installPath'])")
+# Resolve tribble install path from installed_plugins.json. The plugins key is
+# "tribble@<marketplace>", and the marketplace name varies per install (e.g.
+# "tribble@fractional-marketplace"), so match by the "tribble@" prefix rather
+# than hardcoding a marketplace.
+TRIBBLE_ROOT=$(python3 -c "import json, os; p=json.load(open(os.path.expanduser('~/.claude/plugins/installed_plugins.json')))['plugins']; k=next(k for k in p if k.split('@')[0]=='tribble'); print(p[k][0]['installPath'])")
 ```
 
 Then use `"$TRIBBLE_ROOT/scripts/spawn.sh"` in all commands below.
