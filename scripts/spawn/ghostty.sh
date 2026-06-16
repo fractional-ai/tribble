@@ -24,19 +24,31 @@ if [ -z "$FULL_COMMAND" ]; then
 fi
 
 if [ "$(uname)" = "Darwin" ]; then
-    # macOS: Use AppleScript to create a new tab
-    COMMAND_ESCAPED=$(echo "$FULL_COMMAND" | sed -e 's/\\/\\\\/g' -e 's/"/\\"/g')
-
-    ERROR_OUTPUT=$(osascript - "$COMMAND_ESCAPED" "$DIRECTORY" "$TAB_NAME" 2>&1 <<'APPLESCRIPT'
+    # macOS: Use Ghostty's AppleScript API to create a new tab.
+    # See https://ghostty.org/docs/features/applescript
+    #
+    # Two things matter here:
+    #   1. Ghostty has no "create tab command ..." verb. Sessions are created
+    #      from a surface configuration via `new tab`/`new window`.
+    #   2. We set `initial input` (typed into the default login shell) rather
+    #      than `command` (which replaces the shell with a non-login process
+    #      whose PATH omits e.g. /opt/homebrew/bin, breaking `claude`).
+    # argv carries values literally, so no manual quoting/escaping is needed.
+    ERROR_OUTPUT=$(osascript - "$FULL_COMMAND" "$DIRECTORY" "$TAB_NAME" 2>&1 <<'APPLESCRIPT'
 on run argv
     set theCommand to item 1 of argv
     set theDir to item 2 of argv
-    set theName to item 3 of argv
 
     tell application "Ghostty"
         activate
-        set fullCmd to "cd \"" & theDir & "\" && " & theCommand
-        create tab command fullCmd
+        set cfg to new surface configuration
+        set initial working directory of cfg to theDir
+        set initial input of cfg to theCommand & return
+        if (count of windows) > 0 then
+            new tab in front window with configuration cfg
+        else
+            new window with configuration cfg
+        end if
     end tell
 end run
 APPLESCRIPT

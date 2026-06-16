@@ -5,6 +5,18 @@ All notable changes to Tribble will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Fixed
+- Ghostty spawning on macOS. The implementation used a non-existent
+  `create tab command ...` AppleScript verb; rewrote it against Ghostty's
+  actual API (`new surface configuration` + `new tab`/`new window`). Sessions
+  now launch via `initial input` so they run in the user's login shell and
+  inherit its `PATH` (fixes `claude: command not found`).
+- `/tribble:spawn` path resolution doc hardcoded the `tribble@local-plugins`
+  plugins key; now matches the `tribble@` prefix since the marketplace name
+  varies per install.
+
 ## [1.0.0] - 2026-01-08
 
 ### Added
